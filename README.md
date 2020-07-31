@@ -1,339 +1,152 @@
-<p align="center"><a href="https://shen-yu.gitee.io" target="_blank" rel="noopener noreferrer"><img width="100" src="logo.png" alt="ayer logo"></a></p>
-
-<h3 align="center">一个安静且优雅的 Hexo 主题</h3>
-
-<p align="center">
-  <a href="https://travis-ci.org/Shen-Yu/hexo-theme-ayer?branch=master" target="_blank" rel="noopener noreferrer">
-    <img alt="travis-ci" src="https://travis-ci.org/Shen-Yu/hexo-theme-ayer.svg?branch=master">
-  </a>
-  <a href="http://standardjs.com" target="_blank" rel="noopener noreferrer">
-    <img alt="js-standard-style" src="https://img.shields.io/badge/code%20style-standard-brightgreen.svg">
-  </a>
-  <br>
-  <a href="https://hubble.js.org?owner=Shen-Yu&repo=hexo-theme-ayer&start"><img src="https://img.shields.io/badge/since-2019-409eff.svg" alt="Hubble"></a>
-  <a href="https://shen-yu.gitee.io" target="_blank" rel="noopener noreferrer">
-   <img alt="platform" src="https://img.shields.io/badge/platform-PC--ios--android-e68db8.svg">
-   </a>
-  <a href="https://gitter.im/hexo-theme-ayer/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge" target="_blank" rel="noopener noreferrer">
-    <img alt="Gitter" src="https://badges.gitter.im/Join%20Chat.svg">
-  </a>
-  <br>
-  <a href="https://github.com/Shen-Yu/hexo-theme-ayer/releases" target="_blank" rel="noopener noreferrer">
-    <img alt="GitHub tag (latest by date)" src="https://img.shields.io/github/v/tag/Shen-Yu/hexo-theme-ayer?color=blue">
-  </a> 
- <img alt="language" src="https://img.shields.io/badge/language-ejs--stylus-green.svg">
-  <img alt="GitHub repo size" src="https://img.shields.io/github/repo-size/Shen-Yu/hexo-theme-ayer?color=%23af8ddc">
-  <a href="https://github.com/Shen-Yu/hexo-theme-ayer/blob/master/LICENSE" target="_blank" rel="noopener noreferrer"><img alt="LICENSE" src="https://img.shields.io/badge/LICENSE-SATA-efa96e">
-  </a>
-</p>
-
----
-
-:ocean: Ayer is a clean and elegant theme for Hexo, also fast, powerful and responsive. It contains many awesome features, It's perfect for your blog, "Ayer" means "water" in Malaysian and "yesterday" in Spanish. If you have any queries or advice during the process of using, Please contact me!  shenyu@hotmail.com
-
-<b>注：收藏本主题请点右上角Star，谢谢~~ </b>
-<b>如果你想给主题添砖加瓦，可以点右上角Fork，然后给此仓库提交PR</b>
-
-### [Preview 预览](https://shen-yu.gitee.io)
-
-### [中文说明](https://shen-yu.gitee.io/2019/ayer/)
-
-### [国内镜像](https://gitee.com/shen-yu/hexo-theme-ayer)
-
-![Screenshot](screenshots/hexo-theme-ayer.png)
-
-### Install
-
-``` bash
-$ git clone https://github.com/Shen-Yu/hexo-theme-ayer.git themes/ayer
-```
-
-### Enable
-
-Modify `theme` setting in `_config.yml` to `ayer`
-
-``` yml
-theme: ayer
-```
-
-### Update
-
-``` bash
-cd themes/ayer
-git pull
-```
-
-### Configuration
-
-let me know if you have any questions.
-
-``` yml
-# Menu-Sidebar
-menu:
-  Home: /
-  Archives: /archives
-  Categories: /categories
-  Tags: /tags
-  Gallery: http://shenyu-vip.lofter.com
-  Travel: /tags/旅行/
-  About: /2019/about
-
-# Subtitle and Typing animation
-# https://github.com/mattboldt/typed.js
-subtitle:
-  enable: true
-  text: A clean and elegant theme
-  text2: It's perfect for your hexo blog
-  text3: Have fun!  #Supports up to three lines of text
-  startDelay: 0
-  typeSpeed: 200
-  loop: true
-  backSpeed: 100
-  showCursor: true
-
-# Favicon and sidebar logo
-favicon: /favicon.ico
-logo: /images/ayer-side.svg
-
-# Cover Setting 
-# enable: [true|false]；path: [background-image]；logo: [cover-logo-image]
-cover:
-  enable: true
-  path: /images/cover1.jpg  # there are some beautiful cover images in Ayer's directory: /source/images, choose your favorite image to replace it.
-  logo: /images/ayer.svg
-
-# ProgressBar  
-progressBar: true
-
-# Article Setting
-# (Use this to excerpt if article is too long：<!--more-->)
-excerpt_link: Read More...
-excerpt_all: false
-
-# Copy code button
-copy_btn: true
-# Share
-share_enable: true
-# If you are not in China, maybe you prefer to set:false
-share_china: true
-# share text
-share_text: Share
-# search text
-search_text: Search
-# nav text
-nav_text:
-  page_prev: Prev page
-  page_next: Next page
-  post_prev: Newer posts
-  post_next: Older posts
-
-# Catalog in article
-toc: true
-
-# images in the article support click to fullscreen
-image_viewer: true
-
-# https://github.com/willin/hexo-wordcount
-word_count:
-  enable: true
-  # only display in article page(not in index page)
-  only_article_visit: true
-
-# Reward Setting
-# type：0-close reward； 1-only open in article which you have configured reward:true； 2-open in all articles
-reward_type: 2
-# reward word
-reward_wording: 'Buy me a cup of coffee~'
-# qrcode image path
-alipay: /images/alipay.jpg
-# qrcode image path
-weixin: /images/wechat.jpg
-
-# Copyright
-# type：0-close all； 1-only display in article which you have configured copyright: true； 2-all articles
-copyright_type: 2
-
-# Search
-# https://github.com/theme-next/hexo-generator-searchdb
-search: true
-
-# RSS
-# leave it empty if you dont' need
-rss: /atom.xml
-
-# DarkMode
-darkmode: true
-
-# Canvas background style: 0-close，1-moveline
-canvas_bg: 0
-
-# Custom mouse pointer，replace /images/mouse.cur
-mouse:
-  enable: false
-  path: /images/mouse.cur
-
-# Click effect: 0-close，1-love，2-boom，3-particles
-click_effect: 0
-
-# articleWidth and sidebarWidth
-layout:
-  article_width: 80rem
-  sidebar_width: 8rem
-
-# Comment：1、Valine (recommended)；2、Gitalk
-
-# 1、Valine [A fast, simple & powerful comment system](https://github.com/xCss/Valine)
-# You need create leancloud account first (https://console.leancloud.app), then put the id|key in below.
-leancloud:  
-  enable: true
-  app_id: #
-  app_key: #
-# Valine Setting
-valine:
-  enable: true 
-  verify: false # comment verify
-  avatar: mp # (https://valine.js.org/avatar.html)
-  placeholder: Add some comments to my article~ # placeholder
-
-# 2、Gitalk(https://github.com/gitalk/gitalk)
-gitalk:
-  enable: false # true
-  clientID: # GitHub Application Client ID
-  clientSecret: # Client Secret
-  repo: # Repository name
-  owner: # GitHub ID
-  admin: # GitHub ID
-
-# GitHub Ribbons(https://github.blog/2008-12-19-github-ribbons/)
-github: 
-  # (Set false if you don't need)
-  url: https://github.com/Shen-Yu/hexo-theme-ayer
-
-# pv&uv statistics
-busuanzi:
-  enable: true
-
-# cnzz statistics
-cnzz:
-  enable: true
-  url: #
-
-# Google Analytics
-google_analytics: ''
-# Baidu Analytics
-baidu_analytics: ''
-
-# Mathjax Support
-mathjax: true
-
-# Katex Support
-# note: need change the hexo-renderer，npm un hexo-renderer-marked -S && npm i hexo-renderer-markdown-it-katex -S
-katex:
-  enable: false # true
-  allpost: true
-  copy_tex: false
-
-# since year
-since: 2019
-
-# pageFooter (Set true can let more people know this theme, Thanks!)
-pageFooter: true
-```
-
-### Plugins
-
-+ [hexo-generator-search](https://github.com/wzpan/hexo-generator-search) (for Local Search)
-	
-  ```yml
-  $ npm install hexo-generator-searchdb --save
-  ```
-  Then add the plugin configuration in hexo's configuration file `_config.yml` (note: not the theme's configuration file):
-  
-  ```yml
-  # Hexo-generator-search
-  search:
-    path: search.xml
-    field: post
-    format: html
-  ```
-
-+ [hexo-generate-feed](https://github.com/hexojs/hexo-generator-feed) (for RSS)
-
-  ```yml
-  $ npm install hexo-generator-feed --save
-  ```
-  
-  Then add the plugin configuration in hexo's configuration file `_config.yml` (note: not the theme's configuration file):
-  
-  ```yml
-  feed:m 
-      type: atom
-      path: atom.xml
-      limit: 20
-      hub:
-      content:
-      content_limit: 140
-      content_limit_delim: ' '
-      order_by: -date	
-  ```
-  
-+ [hexo-generator-index-pin-top](https://github.com/netcan/hexo-generator-index-pin-top) (for Sticky Post)
-	
-	``` bash
-  $ npm uninstall hexo-generator-index --save
-  $ npm install hexo-generator-index-pin-top --save
-  ```
-### Categories
-``` bash
-  hexo new page categories
-```
-Then paste following codes to file: /source/categories/index.md
-``` md
----
-title: categories
-type: categories
-layout: "categories"
----
-```
-
-### Tags
-Same as categories.
-
-### Gallery
-Need to write in the head of the markdown, this is not a good way to write, I hope to get a better way to write on github.
-
-``` md
----
-title: Gallery
-
-albums: [
-        ["img_url","img_caption"],
-        ["img_url","img_caption"]
-        ]
----
-```
-
-### Toc
-
-Use Tocbot to parse the title tags (h1~h6) in the content and insert the directory. 
-
-+ ayer/_config.yml
-
-	``` bash
-	# Toc
-  toc: true
-	```
-+ If Toc is turned on in ayer/_config.yml, then Tocbot will generate a Toc article directory in the title tag of each blog parsing content, but not all blogs require Toc, so in the Front-matter section of markdown Can be closed:
-
-	``` md
-	---
-  no_toc: true
-  ---
-	```
-
----
-
-<br/>
-<a src="https://github.com/Shen-Yu/hexo-theme-ayer">Ayer</a> by <a  href="https://github.com/Shen-Yu">Eric-Shen</a> is licensed under  <a rel="license" href="https://github.com/Shen-Yu/hexo-theme-ayer/blob/master/LICENSE">SATA-License</a>.
-
-The basic idea is, whenever using a project using SATA license, people shall star/like/+1 that project and thank the author. Just imagine Google stared your project and send you a thank-you letter because they used your project in github!
+# [Start Bootstrap - Clean Blog Jekyll](https://startbootstrap.com/themes/clean-blog-jekyll/) - Official Jekyll Version
+
+[Clean Blog Jekyll](https://startbootstrap.com/themes/clean-blog-jekyll/) is a stylish, responsive blog theme for [Bootstrap](https://getbootstrap.com/) created by [Start Bootstrap](https://startbootstrap.com/). This theme features a blog homepage, about page, contact page, and an example post page along with a working contact form powered by [Formspree](https://formspree.io/).
+
+This repository holds the official Jekyll version of the Clean Blog theme on Start Bootstrap!
+
+## Preview
+
+[![Clean Blog (Jekyll) Preview](https://startbootstrap.com/assets/img/screenshots/themes/clean-blog-jekyll.png)](http://StartBootstrap.github.io/startbootstrap-clean-blog-jekyll/)
+
+**[View Live Preview](http://StartBootstrap.github.io/startbootstrap-clean-blog-jekyll/)**
+
+## Installation & Setup
+
+### Using RubyGems
+
+When installing the theme using RubyGems, demo images, posts, and pages are not included. Follow the instructions below for complete setup.
+
+1. (Optional) Create a new Jekyll site: `jekyll new my-site`
+2. Replace the current theme in your `Gemfile` with `gem "jekyll-theme-clean-blog"`.
+3. Install the theme (run the command inside your site directory): `bundle install`
+4. Replace the current theme in your `_config.yml` file with `theme: jekyll-theme-clean-blog`.
+5. Build your site: `bundle exec jekyll serve`
+
+Assuming there are no errors and the site is building properly, follow these steps next:
+
+1. Create the following pages if they do not exist already (or change the extension of existing markdown files from `.md` to `.html`):
+
+   * `index.html` - set to `layout: home`
+   * `about.html` - set to `layout: page`
+   * `contact.html` - set to `layout: page`
+   * `posts/index.html` - set to `layout: page` (you will also need to create a `posts` directory)
+
+2. Configure the `index.html` front matter. Example:
+
+    ```markdown
+    ---
+    layout: home
+    background: '/PATH_TO_IMAGE'
+    ---
+    ```
+
+3. Configure the `about.html`, `contact.html`, and `posts/index.html` front matter. Example:
+
+    ```markdown
+    ---
+    layout: page
+    title: Page Title
+    description: This is the page description.
+    background: '/PATH_TO_IMAGE'
+    ---
+    ```
+
+4. For each post in the `_posts` directory, update the front matter. Example:
+
+    ```markdown
+    ---
+    layout: post
+    title: "Post Title"
+    subtitle: "This is the post subtitle."
+    date: YYYY-MM-DD HH:MM:SS
+    background: '/PATH_TO_IMAGE'
+    ---
+    ```
+
+    For reference, look at the [demo repository](https://github.com/StartBootstrap/startbootstrap-clean-blog-jekyll) to see how the files are set up.
+
+5. Add the form to the `contact.html` page. Add the following code to your `contact.html` page:
+
+    ```html
+    <form name="sentMessage" id="contactForm" novalidate>
+      <div class="control-group">
+        <div class="form-group floating-label-form-group controls">
+          <label>Name</label>
+          <input type="text" class="form-control" placeholder="Name" id="name" required data-validation-required-message="Please enter your name.">
+          <p class="help-block text-danger"></p>
+        </div>
+      </div>
+      <div class="control-group">
+        <div class="form-group floating-label-form-group controls">
+          <label>Email Address</label>
+          <input type="email" class="form-control" placeholder="Email Address" id="email" required data-validation-required-message="Please enter your email address.">
+          <p class="help-block text-danger"></p>
+        </div>
+      </div>
+      <div class="control-group">
+        <div class="form-group col-xs-12 floating-label-form-group controls">
+          <label>Phone Number</label>
+          <input type="tel" class="form-control" placeholder="Phone Number" id="phone" required data-validation-required-message="Please enter your phone number.">
+          <p class="help-block text-danger"></p>
+        </div>
+      </div>
+      <div class="control-group">
+        <div class="form-group floating-label-form-group controls">
+          <label>Message</label>
+          <textarea rows="5" class="form-control" placeholder="Message" id="message" required data-validation-required-message="Please enter a message."></textarea>
+          <p class="help-block text-danger"></p>
+        </div>
+      </div>
+      <br>
+      <div id="success"></div>
+      <div class="form-group">
+        <button type="submit" class="btn btn-primary" id="sendMessageButton">Send</button>
+      </div>
+    </form>
+    ```
+
+    Make sure you have the `email` setting in your `_config.yml` file set to a working email address! Once this is set, fill out the form and then check your email, verify the email address using the link sent to you by Formspree, and then the form will be working!
+
+6. Build your site: `bundle exec jekyll serve`
+
+### Using Core Files
+
+When using the core files, the demo images, posts, and pages are all included with the download. After following the instructions below, you can then go and change the content of the pages and posts.
+
+1. [Download](https://github.com/StartBootstrap/startbootstrap-clean-blog-jekyll/archive/master.zip) or Clone the repository.
+2. Update the following configuration settings in your `_config.yml` file:
+   - `baseurl`
+   - `url`
+   - `title`
+   - `email` (after setting this setting to a working email address, fill out the form on the contact page and send it - then check your email and verify the address and the form will send you messages when used)
+   - `description`
+   - `author`
+   - `twitter_username` (Optional)
+   - `facebook_username` (Optional)
+   - `github_username` (Optional)
+   - `linkedin_username` (Optional)
+   - `instagram_username` (Optional)
+3. Build your site: `bundle exec jekyll serve`
+
+## Bugs and Issues
+
+Have a bug or an issue with this template? [Open a new issue](https://github.com/StartBootstrap/startbootstrap-clean-blog-jekyll/issues) here on GitHub!
+
+## About
+
+Start Bootstrap is an open source library of free Bootstrap templates and themes. All of the free templates and themes on Start Bootstrap are released under the MIT license, which means you can use them for any purpose, even for commercial projects.
+
+* <https://startbootstrap.com>
+* <https://twitter.com/SBootstrap>
+
+Start Bootstrap was created by and is maintained by **[David Miller](http://davidmiller.io/)**.
+
+* <http://davidmiller.io>
+* <https://twitter.com/davidmillerskt>
+* <https://github.com/davidtmiller>
+
+Start Bootstrap is based on the [Bootstrap](https://getbootstrap.com/) framework created by [Mark Otto](https://twitter.com/mdo) and [Jacob Thorton](https://twitter.com/fat).
+
+## Copyright and License
+
+Copyright 2013-2020 Start Bootstrap LLC. Code released under the [MIT](https://github.com/StartBootstrap/startbootstrap-clean-blog-jekyll/blob/gh-pages/LICENSE) license.

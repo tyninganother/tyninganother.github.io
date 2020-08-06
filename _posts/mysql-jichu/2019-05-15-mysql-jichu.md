@@ -1,11 +1,11 @@
 ---
 layout: article
-title: Java异常
+title: Mysql基础
 mathjax: true
-tags: Java 异常
+tags: Mysql基础
 key: 2019-01-01
 categories:
-- Java异常
+- Mysql
 ---
 # MySql基础
 

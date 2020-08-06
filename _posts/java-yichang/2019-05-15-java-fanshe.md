@@ -1,6 +1,6 @@
 ---
 layout: article
-title: Java反射
+title: Java异常
 mathjax: true
 tags: Java 异常
 key: 2019-01-01

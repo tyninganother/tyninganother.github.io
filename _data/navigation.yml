@@ -21,17 +21,30 @@ header:
     url: /
   - titles:
       # @start locale config
-      en: &EN       Pages
+      en: &EN       Categories
       en-GB: *EN
       en-US: *EN
       en-CA: *EN
       en-AU: *EN
-      zh-Hans: &ZH_HANS  文章
+      zh-Hans: &ZH_HANS  分类
       zh: *ZH_HANS
       zh-CN: *ZH_HANS
       zh-SG: *ZH_HANS
       # @end locale config
-    url: /pages.html
+    url: /categories
+  - titles:
+      # @start locale config
+      en: &EN       lable
+      en-GB: *EN
+      en-US: *EN
+      en-CA: *EN
+      en-AU: *EN
+      zh-Hans: &ZH_HANS  标签
+      zh: *ZH_HANS
+      zh-CN: *ZH_HANS
+      zh-SG: *ZH_HANS
+      # @end locale config
+    url: /lables
   - titles:
       # @start locale config
       en: &EN       Archive
@@ -55,7 +68,7 @@ header:
       fr-FR: *FR
       fr-LU: *FR
       # @end locale config
-    url: /archive.html
+    url: /archive
 
 
 

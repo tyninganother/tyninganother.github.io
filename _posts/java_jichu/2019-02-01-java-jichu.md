@@ -1,6 +1,6 @@
 ---
 layout: article
-title: 目录
+title: Java基础
 mathjax: true
 tags: Java基础
 key: 2019-01-01

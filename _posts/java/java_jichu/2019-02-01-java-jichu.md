@@ -308,4 +308,42 @@ Iterator是Java迭代器最简单的实现，为List设计的ListIterator具有�
 - Iterator可用来遍历Set和List集合，但是ListIterator只能用来遍历List。
 - Iterator对集合只能是前向遍历，ListIterator既可以前向也可以后向。
 - ListIterator实现了Iterator接口，并包含其他的功能，比如：增加元素，替换元素，获取前一个和后一个元素的索引，等等。
--
+
+34. 局部类
+```java
+public static void main(String[] args) {
+  //Test 是局部类-在方法中定义的类
+       class Test {
+           public String aaa() {
+               System.out.println("zaaaa");
+               return null;
+           }
+       }
+       Thread thread = new Thread(){
+           @Override
+           public void run() {
+               new Test(){
+                   @Override
+                   public String aaa() {
+                       System.out.println("aaaa");
+                       return null;
+                   }
+               }.aaa();
+               System.out.println("fdsafdasfds");
+           }
+       };
+       thread.start();
+   }
+```
+35. 匿名类
+匿名类没有名字,是在new对象的时候创建,new Runnable()就是使用了匿名类
+```java
+// 匿名类实现了接口并且可以调用，匿名类中的方法
+        Runnable a = new Runnable(){
+            @Override
+            public void run() {
+                System.out.println("runnable");
+            }
+        };
+        new Thread(a).start();
+```

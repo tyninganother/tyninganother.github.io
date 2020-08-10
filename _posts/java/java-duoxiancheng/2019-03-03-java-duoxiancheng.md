@@ -8,6 +8,17 @@ categories:
 - Java多线程
 ---
 #多线程
+需要总结的文章
+> - [ExecutorService的简单说明，需要总结一下](https://www.twle.cn/c/yufei/javatm/javatm-basic-executorservice.html)
+
+获取最新信息
+> - Runnable Callable 分装任务执行的内容，没有执行的入口。两者的区别就是前者对于run()执行方法没有提供返回值，后者call提供了返回值。
+> - Tread就是线程的实现类
+> - 线程池就是ExecutorService是java提供的一个对线程执行需求的工具。包含一个线程池和一个对线程操作的工具
+> - Future 以及FutureTask： Future提供了对线程的操作的接口，可以取消线程，获取线程的返回值等。FutureTask是对Future以及Runable的继承实现
+> - 线程运行的方法。new Tread(Runable T).start()，new Tread().start(); 另外一种就是使用ExecutorService.submit();其中ExecutorService的构造方法，可以放Runnable或者是Callable的实现对象。
+>
+
 1. 并行和并发有什么区别？
 - 并行是指两个或者多个事件在同一时刻发生；而并发是指两个或多个事件在同一时间间隔发生。
 - 并行是在不同实体上的多个事件，并发是在同一实体上的多个事件。
@@ -25,7 +36,6 @@ categories:
     - 定义Thread类的子类，并重写该类的run方法，该run方法的方法体就代表了线程要完成的任务。因此把run()方法称为执行体。
     - 创建Thread子类的实例，即创建了线程对象。
     - 调用线程对象的start()方法来启动该线程。
-
     2)、通过Runnable接口创建线程类
     - 定义runnable接口的实现类，并重写该接口的run()方法，该run()方法的方法体同样是该线程的线程执行体。
     - 创建 Runnable实现类的实例，并依此实例作为Thread的target来创建Thread对象，该Thread对象才是真正的线程对象。

@@ -1,8 +1,8 @@
 ---
 layout: article
-title: Java基础-运算符
+title: Java基础
 mathjax: true
-tags: Java基础 运算符
+tags: Java基础
 key: 2019-02-01-2
 categories:
 - Java

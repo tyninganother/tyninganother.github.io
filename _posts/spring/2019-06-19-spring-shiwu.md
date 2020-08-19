@@ -1,6 +1,6 @@
 ---
 layout: article
-title: spring
+title: spring事务处理
 mathjax: true
 tags: spring 事务
 key: 2019-06-19
@@ -21,4 +21,3 @@ categories:
 注意：个人觉得这种事务解决的问题是一类问题不只限于数据库的“事务”需求。
 
 ## 2.Spring对于数据库事务的实现
-

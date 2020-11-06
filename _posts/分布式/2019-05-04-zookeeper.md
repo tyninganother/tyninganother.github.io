@@ -30,4 +30,3 @@ Zookeeper属于其中的一种
 单机模式：standalone mode
 
 复制模式：replicated mode
-

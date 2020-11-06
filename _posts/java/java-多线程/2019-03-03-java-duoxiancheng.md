@@ -7,8 +7,18 @@ key: 2019-01-01
 categories:
 - Java多线程
 ---
-#多线程
+# 多线程
+
+多线程的知识结构
+
+1. 线程和进程以及纤程区别
+
+   线程
+
+2. 线程池  
+
 需要总结的文章
+
 > - [ExecutorService的简单说明，需要总结一下](https://www.twle.cn/c/yufei/javatm/javatm-basic-executorservice.html)
 
 获取最新信息

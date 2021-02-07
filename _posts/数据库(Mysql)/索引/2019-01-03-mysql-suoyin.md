@@ -22,3 +22,47 @@ categories:
    例如：SELECT E.* FROM E WHERE E.b=2 OR E.a=1
 
 Tip：通过explain测试即可看出效果
+
+# 什么是索引
+
+# 索引采取的数据结构
+
+1. 常见的MySQL主要有两种结构：
+
+   Hash索引
+
+   B+ Tree索引
+
+   **Tip**:InnoDB引擎，默认的是B+树
+
+2. 这两种数据结构有什么不同
+3. 
+
+# InnoDB搜索引擎
+
+# B+ Tree存储内容
+
+InnoDB的B+ Tree 可能存整行数据或者主键的值
+
+# 聚簇索引和非聚簇索引
+
+1. 定义
+
+2. 在查询数据的区别
+
+3. 回表
+
+4. 覆盖索引
+
+   
+
+# 联合索引、最左前缀匹配
+
+
+
+#  MySQL 5.6对索引的优化
+
+1. 一个优化叫做是Index Condition Pushdown Optimization
+
+# 查询优化器
+

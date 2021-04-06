@@ -36,9 +36,9 @@ categories:
 
    常量：
 
-   1. DEFAULT_INITIAL_CAPACITY 初始**数组**的容量 1 << 4; // aka 16  必须是2的n次幂。使用触除法散列发存放数据；问题：为什么是这个数据为什么要”2的n次幂“？有两个原因：
-   2. MAXIMUM_CAPACITY 1 << 30 存储元素最大个数
-   3. DEFAULT_LOAD_FACTOR 叫负载因子。扩容的时候用，当存储的数据达到数组的长度*DEFAULT_LOAD_FACTOR的时候就进行扩容。
+   1. **DEFAULT_INITIAL_CAPACITY** 初始**数组**的容量 1 << 4; // aka 16  必须是2的n次幂。使用触除法散列发存放数据；问题：为什么是这个数据为什么要”2的n次幂“？有两个原因：
+   2. **MAXIMUM_CAPACITY** 1 << 30 存储元素最大个数
+   3. **DEFAULT_LOAD_FACTOR** 叫加载因子。扩容的时候用，当存储的数据达到数组的长度*DEFAULT_LOAD_FACTOR的时候就进行扩容，比如 10 * 0.75 个数的时候就进行扩容。
    4. 一共有4个构造函数，其中有三个()(int)(int,float)三个构造函数，这三个构造函数在被调用的时候是不会开辟该HashMap需要存储数据的存储空间。只有在put的时候才会。第四个构造函数是一个HashMap(Map<? extends K, ? extends V> m)，是需要存放参数传进来的Map数据的才会开辟存储空间。
    5.  Key是可以是null的
    6. 哈希表中会有一个普遍的问题，是一个hash冲突问题。
@@ -82,6 +82,67 @@ categories:
 
 
 
+```java
+/**
+ * Implements Map.put and related methods
+ *
+ * @param hash hash for key
+ * @param key the key
+ * @param value the value to put
+ * @param onlyIfAbsent if true, don't change existing value
+ * @param evict if false, the table is in creation mode.
+ * @return previous value, or null if none
+ */
+final V putVal(int hash, K key, V value, boolean onlyIfAbsent,
+               boolean evict) {
+    Node<K,V>[] tab; Node<K,V> p; int n, i;
+  //如果table是空的那么我们就初始化一下他使用resize方法
+    if ((tab = table) == null || (n = tab.length) == 0)
+        n = (tab = resize()).length;
+  //查看该hash对应的位置是否被占用如果没有被占用的话就直接赋值
+  //n是table的长度b（比如是16），然后n - 1=15 然后hash&15就是16的与运算结果就是0到15的一个位置
+  //就是因为2的倍数的&运算和取余运算的结果相同但是&效率高，所以resize方法说的doubles table size就是原因，在这一点上就是为了提到效率
+    if ((p = tab[i = (n - 1) & hash]) == null)
+        tab[i] = newNode(hash, key, value, null);
+    else {
+        Node<K,V> e; K k;
+        if (p.hash == hash &&
+            ((k = p.key) == key || (key != null && key.equals(k))))
+            e = p;
+        else if (p instanceof TreeNode)
+            e = ((TreeNode<K,V>)p).putTreeVal(this, tab, hash, key, value);
+        else {
+            for (int binCount = 0; ; ++binCount) {
+                if ((e = p.next) == null) {
+                    p.next = newNode(hash, key, value, null);
+                    if (binCount >= TREEIFY_THRESHOLD - 1) // -1 for 1st
+                        treeifyBin(tab, hash);
+                    break;
+                }
+                if (e.hash == hash &&
+                    ((k = e.key) == key || (key != null && key.equals(k))))
+                    break;
+                p = e;
+            }
+        }
+        if (e != null) { // existing mapping for key
+            V oldValue = e.value;
+            if (!onlyIfAbsent || oldValue == null)
+                e.value = value;
+            afterNodeAccess(e);
+            return oldValue;
+        }
+    }
+    ++modCount;
+    if (++size > threshold)
+        resize();
+    afterNodeInsertion(evict);
+    return null;
+}
+```
+
+
+
 除法散列法 
 
 ```java
@@ -96,6 +157,8 @@ categories:
  */
 final Node<K,V>[] resize()
 ```
+
+resize这个方法做两个事情一个是初始化，或者是扩容table到两倍长度
 
 - 叫”扰动函数“
 

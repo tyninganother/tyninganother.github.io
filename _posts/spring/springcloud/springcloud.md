@@ -2,11 +2,11 @@
 
 
 
-2. 使用spring cloud 搭建一个系统
-
+1. 使用spring cloud 搭建一个系统
 2. 中间件
 3. 传统的SSO
 4. Oauth2服务 四种授权模式
+5. <img src="springcloud.assets/image-20210406141548674.png" alt="image-20210406141548674" style="zoom:50%;" />
 
 ![image-20201130114534127](/Users/haining/Library/Application Support/typora-user-images/image-20201130114534127.png)
 

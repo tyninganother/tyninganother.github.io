@@ -37,8 +37,8 @@ https://www.bilibili.com/video/BV1vE411v7cR?p=4&spm_id_from=pageDriver
    2. 数组的初始化：在put方法调用的时候开始进行初始化数组
       1. 首先判断table是否是空数组，如果是空数组的话就调用inflateTable(int toSize)方法进行初始化。toSize这个参数就是我们在new HashMap(size)的时候size的值，是数组的大小，如果使用无参构造函数就使用默认的数组的大小。
          1. inflateTable方法是给table进行赋值使用Entity[size],其中size使用的是threshold，threshold这个值的取值有几种情况，如果是大于等于最大的容量那么就使用最大容量，否则就进行计算，然后判断是否小于1如果小于等于1的话就使用1，否则就找大于threshold这个值的2的幂次方的一个数（比如是7那么这个地方计算出来的就是8）
-      2. 
-   3. 
+      2.
+   3.
 
 6. 为什么数组的长度必须是2的整数次幂?
 
@@ -85,7 +85,7 @@ https://www.bilibili.com/video/BV1vE411v7cR?p=4&spm_id_from=pageDriver
    ```java
    int hash = hash(key);
    int i = indexFor(hash, table.length);
-   
+
    ```
 
    ```java
@@ -330,15 +330,15 @@ https://www.bilibili.com/video/BV1LJ411W7dP?from=search&seid=1263427266349862381
 
 
 
-1. 
+1.
 
-2. 
+2.
 
-3. 
+3.
 
-4. 
+4.
 
-5. 
+5.
 
 6. HashMap的原理，内部数据结构？
 
@@ -544,7 +544,7 @@ static final int hash(Object key) {
 
    - 将新节点加到链表后，  
 
-   - 容量扩充为原来的两倍，然后对每个节点重新计算哈希值。 
+   - 容量扩充为原来的两倍，然后对每个节点重新计算哈希值。
    - 这个值只可能在两个地方，一个是原下标的位置，另一种是在下标为 <原下标+原容量> 的位置。
 
 6. 抛开HashMap，hash冲突有哪些解决办法？
@@ -626,7 +626,7 @@ final V putVal(int hash, K key, V value, boolean onlyIfAbsent,
 
 
 
-除法散列法 
+除法散列法
 
 ```java
 /**
@@ -663,5 +663,3 @@ static final int hash(Object key) {
   1. 是为了好取余数
 
   2. 是为了扩容之后元素的移动
-
-     

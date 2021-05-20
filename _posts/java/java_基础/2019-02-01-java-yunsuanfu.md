@@ -8,8 +8,6 @@ categories:
 - Java
 - Java基础
 ---
-> [文章地址](https://www.cnblogs.com/chuijingjing/p/9405598.html)
-> [文章地址](https://baijiahao.baidu.com/s?id=1659125201403697638&wfr=spider&for=pc)
 # 一、位运算
 位运算符用来对二进制位进行操作，包括按位取反（~）、按位与（&）、按位或（|）、异或（^）、右移（>>）、左移（<<）和无符号右移（>>>）。位运算符只能对整数型和字符型数据进行操作。
 ## 1.取反（~）

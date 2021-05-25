@@ -37,8 +37,8 @@ https://www.bilibili.com/video/BV1vE411v7cR?p=4&spm_id_from=pageDriver
    2. 数组的初始化：在put方法调用的时候开始进行初始化数组
       1. 首先判断table是否是空数组，如果是空数组的话就调用inflateTable(int toSize)方法进行初始化。toSize这个参数就是我们在new HashMap(size)的时候size的值，是数组的大小，如果使用无参构造函数就使用默认的数组的大小。
          1. inflateTable方法是给table进行赋值使用Entity[size],其中size使用的是threshold，threshold这个值的取值有几种情况，如果是大于等于最大的容量那么就使用最大容量，否则就进行计算，然后判断是否小于1如果小于等于1的话就使用1，否则就找大于threshold这个值的2的幂次方的一个数（比如是7那么这个地方计算出来的就是8）
-      2.
-   3.
+         2.
+         3.
 
 6. 为什么数组的长度必须是2的整数次幂?
 
@@ -85,7 +85,7 @@ https://www.bilibili.com/video/BV1vE411v7cR?p=4&spm_id_from=pageDriver
    ```java
    int hash = hash(key);
    int i = indexFor(hash, table.length);
-
+   
    ```
 
    ```java
@@ -306,7 +306,280 @@ static final int hash(Object key) {
 }
 ```
 
-其中这个hash方法的这种实现主要是为了让key的哈希值的高16位也参与路由运算
+其中这个hash方法的这种实现主要是为了让key的哈希值的高16位也参与路由运算。
+
+下边开始说putVal的方法：
+
+```java
+/**
+ * Implements Map.put and related methods
+ *
+ * @param hash hash for key
+ * @param key the key
+ * @param value the value to put
+ * @param onlyIfAbsent if true, don't change existing value
+ * @param evict if false, the table is in creation mode.
+ * @return previous value, or null if none
+ */
+final V putVal(int hash, K key, V value, boolean onlyIfAbsent,
+               boolean evict) {
+  // Node<K,V>[] tab 应用当前的HashMap的散列表
+  // Node<K,V> p 表示当前散列表的元素
+  // int n  标示散列表素组的长度
+  // int i 表示路由寻址结果
+    Node<K,V>[] tab; Node<K,V> p; int n, i;
+  // 如果table为空，那么就进行初始化table
+  // 延迟初始化，
+    if ((tab = table) == null || (n = tab.length) == 0)
+        n = (tab = resize()).length;
+  // 如果新添加的数据的对应的table的位置上没有值那么就新创建节点并放在该table位置上
+    if ((p = tab[i = (n - 1) & hash]) == null)
+        tab[i] = newNode(hash, key, value, null);
+    else {
+      // 如果table不为空并且添加的元素对应的table的位置上有值那么就走下边的逻辑
+        Node<K,V> e; K k;
+      // 如果新添加的值在table上有值的话分几种情况
+      // 情况一：如果取到的数据是与新添加的数据 hash是一样的并且key的值也是一样的话，那么不作处理
+        if (p.hash == hash &&
+            ((k = p.key) == key || (key != null && key.equals(k))))
+            e = p;
+      // 判断如果p是树节点的话就进行树的操作
+        else if (p instanceof TreeNode)
+            e = ((TreeNode<K,V>)p).putTreeVal(this, tab, hash, key, value);
+        else {
+            for (int binCount = 0; ; ++binCount) {
+                if ((e = p.next) == null) {
+                    p.next = newNode(hash, key, value, null);
+                    if (binCount >= TREEIFY_THRESHOLD - 1) // -1 for 1st
+                        treeifyBin(tab, hash);
+                    break;
+                }
+                if (e.hash == hash &&
+                    ((k = e.key) == key || (key != null && key.equals(k))))
+                    break;
+                p = e;
+            }
+        }
+        if (e != null) { // existing mapping for key
+            V oldValue = e.value;
+            if (!onlyIfAbsent || oldValue == null)
+                e.value = value;
+            afterNodeAccess(e);
+            return oldValue;
+        }
+    }
+  // modCount： 表示散列表被修改的次数，提花Node元素的Value不计数
+    ++modCount;
+  // 插入新元素，size自增，如果自增达到扩容条件就进行自增
+    if (++size > threshold)
+        resize();
+    afterNodeInsertion(evict);
+    return null;
+}
+```
+
+```java
+/**
+ * Tree version of putVal.
+ */
+final TreeNode<K,V> putTreeVal(HashMap<K,V> map, Node<K,V>[] tab,
+                               int h, K k, V v) {
+    Class<?> kc = null;
+    boolean searched = false;
+    TreeNode<K,V> root = (parent != null) ? root() : this;
+    for (TreeNode<K,V> p = root;;) {
+        int dir, ph; K pk;
+        if ((ph = p.hash) > h)
+            dir = -1;
+        else if (ph < h)
+            dir = 1;
+        else if ((pk = p.key) == k || (k != null && k.equals(pk)))
+            return p;
+        else if ((kc == null &&
+                  (kc = comparableClassFor(k)) == null) ||
+                 (dir = compareComparables(kc, k, pk)) == 0) {
+            if (!searched) {
+                TreeNode<K,V> q, ch;
+                searched = true;
+                if (((ch = p.left) != null &&
+                     (q = ch.find(h, k, kc)) != null) ||
+                    ((ch = p.right) != null &&
+                     (q = ch.find(h, k, kc)) != null))
+                    return q;
+            }
+            dir = tieBreakOrder(k, pk);
+        }
+
+        TreeNode<K,V> xp = p;
+        if ((p = (dir <= 0) ? p.left : p.right) == null) {
+            Node<K,V> xpn = xp.next;
+            TreeNode<K,V> x = map.newTreeNode(h, k, v, xpn);
+            if (dir <= 0)
+                xp.left = x;
+            else
+                xp.right = x;
+            xp.next = x;
+            x.parent = x.prev = xp;
+            if (xpn != null)
+                ((TreeNode<K,V>)xpn).prev = x;
+            moveRootToFront(tab, balanceInsertion(root, x));
+            return null;
+        }
+    }
+}
+```
+
+
+
+初始化/扩容方法：
+
+为什么要进行扩容？为了解决哈希冲突导致的量化影响查询效率，扩容会缓解该问题。
+
+扩容机制：
+
+​	什么时候扩容？
+
+​		通超过12扩容
+
+​		链表长度超过8，元素大于64扩容
+
+​	扩容是什么？
+
+​		进行扩容时候，使用的rehash方式：每次扩容都是翻倍，与原来计算的(n-1)&hash的结果相比，只是多了一个bit位，所以节点要么就在原来的位置，要么就被分配到“原位置+旧容量”这个位置。如下图：
+
+![image-20210525163532652](/Users/haining/Documents/mydoc/tyninganother.github.io/assets/images/post/image-20210525163532652.png)	
+
+```java
+/**
+ * Initializes or doubles table size.  If null, allocates in
+ * accord with initial capacity target held in field threshold.
+ * Otherwise, because we are using power-of-two expansion, the
+ * elements from each bin must either stay at same index, or move
+ * with a power of two offset in the new table.
+ *
+ * @return the table
+ */
+final Node<K,V>[] resize() {
+  // 扩容之前的哈希表
+    Node<K,V>[] oldTab = table;
+  // oldCap:表示扩容之前的table的数组的长度
+    int oldCap = (oldTab == null) ? 0 : oldTab.length;
+  // 表示扩容之前的阈值，出发本次扩容的阈值
+    int oldThr = threshold;
+  // newCap：扩容之后的table的大小 newThr：扩容之后，再次触发扩容的阈值
+    int newCap, newThr = 0;
+  // 如果table有值，那么就不是初始化情况，这是一次扩容
+    if (oldCap > 0) {
+        if (oldCap >= MAXIMUM_CAPACITY) {
+            threshold = Integer.MAX_VALUE;
+            return oldTab;
+        }
+        else if ((newCap = oldCap << 1) < MAXIMUM_CAPACITY &&
+                 oldCap >= DEFAULT_INITIAL_CAPACITY)
+            newThr = oldThr << 1; // double threshold
+    }
+  // 
+    else if (oldThr > 0) // initial capacity was placed in threshold
+        newCap = oldThr;
+    else {               // zero initial threshold signifies using defaults
+        newCap = DEFAULT_INITIAL_CAPACITY;
+        newThr = (int)(DEFAULT_LOAD_FACTOR * DEFAULT_INITIAL_CAPACITY);
+    }
+    if (newThr == 0) {
+        float ft = (float)newCap * loadFactor;
+        newThr = (newCap < MAXIMUM_CAPACITY && ft < (float)MAXIMUM_CAPACITY ?
+                  (int)ft : Integer.MAX_VALUE);
+    }
+    threshold = newThr;
+    @SuppressWarnings({"rawtypes","unchecked"})
+        Node<K,V>[] newTab = (Node<K,V>[])new Node[newCap];
+    table = newTab;
+    if (oldTab != null) {
+        for (int j = 0; j < oldCap; ++j) {
+            Node<K,V> e;
+            if ((e = oldTab[j]) != null) {
+                oldTab[j] = null;
+              // 如果是单个元素，使用hash&(length-1)计算index然后给新的table的位置
+                if (e.next == null)
+                    newTab[e.hash & (newCap - 1)] = e;
+              // 是否是树的话
+                else if (e instanceof TreeNode)
+                    ((TreeNode<K,V>)e).split(this, newTab, j, oldCap);
+                else { // preserve order
+                  // 低位链表：存放在扩容之后的数组的下标位置，与当前数组的下标的位置一致
+                    Node<K,V> loHead = null, loTail = null;
+                  // 高位链表：存放再扩容之后的数组的下标位置为当前数组下标位置+扩容之前数组的长度
+                    Node<K,V> hiHead = null, hiTail = null;
+                    Node<K,V> next;
+                    do {
+                        next = e.next;
+                        if ((e.hash & oldCap) == 0) {
+                            if (loTail == null)
+                                loHead = e;
+                            else
+                                loTail.next = e;
+                            loTail = e;
+                        }
+                        else {
+                            if (hiTail == null)
+                                hiHead = e;
+                            else
+                                hiTail.next = e;
+                            hiTail = e;
+                        }
+                    } while ((e = next) != null);
+                    if (loTail != null) {
+                        loTail.next = null;
+                        newTab[j] = loHead;
+                    }
+                    if (hiTail != null) {
+                        hiTail.next = null;
+                        newTab[j + oldCap] = hiHead;
+                    }
+                }
+            }
+        }
+    }
+    return newTab;
+}
+```
+
+转化成红黑树，首先检查是否超过的边界值如果没有超过就进行扩容，否则转化树，转化树的时候首先将之前的链表弄成弄成一个双向链表的实现，这个双向链表的节点的结构就是红黑树的节点的结构，然后hd.treeify(tab)转化为红黑树：
+
+```java
+/**
+ * Replaces all linked nodes in bin at index for given hash unless
+ * table is too small, in which case resizes instead.
+ */
+final void treeifyBin(Node<K,V>[] tab, int hash) {
+    int n, index; Node<K,V> e;
+    if (tab == null || (n = tab.length) < MIN_TREEIFY_CAPACITY)
+        resize();
+    else if ((e = tab[index = (n - 1) & hash]) != null) {
+        TreeNode<K,V> hd = null, tl = null;
+        do {
+            TreeNode<K,V> p = replacementTreeNode(e, null);
+            if (tl == null)
+                hd = p;
+            else {
+                p.prev = tl;
+                tl.next = p;
+            }
+            tl = p;
+        } while ((e = e.next) != null);
+        if ((tab[index] = hd) != null)
+            hd.treeify(tab);
+    }
+}
+```
+
+
+
+
+
+
+
+
 
 https://www.bilibili.com/video/BV1v54y1B7NS?from=search&seid=12367278185378215279
 
@@ -314,7 +587,7 @@ https://www.bilibili.com/video/BV1v54y1B7NS?from=search&seid=1236727818537821527
 
 
 
-
+![image-20210525143613766](/Users/haining/Documents/mydoc/tyninganother.github.io/assets/images/post/image-20210525143613766.png)
 
 https://www.bilibili.com/video/BV1Qk4y1672n?from=search&seid=12634272663498623818
 
@@ -328,9 +601,19 @@ https://www.bilibili.com/video/BV1LJ411W7dP?from=search&seid=1263427266349862381
 
 
 
+问题
+
+1.创建table7和8的区别
 
 
-1.
+
+
+
+
+
+
+
+
 
 2.
 

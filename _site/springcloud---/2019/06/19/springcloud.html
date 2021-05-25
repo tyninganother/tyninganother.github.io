@@ -1,0 +1,1318 @@
+<!DOCTYPE html><html lang="zh">
+  <head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no"><title>SpringCloud - Tyning Another</title>
+
+<meta name="description" content="#要知道什么是现在使用的东西  使用spring cloud 搭建一个系统  中间件  传统的SSO  Oauth2服务 四种授权模式  分布式微服务架构体系https://www.bilibili.com/video/BV18E411x7eT?p=18组件说明服务注册中心Eureka等待总结：  最终的结果就是...">
+<link rel="canonical" href="/springcloud---/2019/06/19/springcloud.html"><link rel="alternate" type="application/rss+xml" title="Tyning Another" href="/feed.xml"><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico">
+
+<meta name="msapplication-TileColor" content="#ffc40d"><meta name="msapplication-config" content="/assets/browserconfig.xml">
+
+<meta name="theme-color" content="#ffffff">
+<!-- end favicons snippet --><link rel="stylesheet" href="/assets/css/main.css"><link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/5.15.1/css/all.css" ><!-- start custom head snippets -->
+
+<!-- end custom head snippets -->
+<script>(function() {
+  window.isArray = function(val) {
+    return Object.prototype.toString.call(val) === '[object Array]';
+  };
+  window.isString = function(val) {
+    return typeof val === 'string';
+  };
+
+  window.hasEvent = function(event) {
+    return 'on'.concat(event) in window.document;
+  };
+
+  window.isOverallScroller = function(node) {
+    return node === document.documentElement || node === document.body || node === window;
+  };
+
+  window.isFormElement = function(node) {
+    var tagName = node.tagName;
+    return tagName === 'INPUT' || tagName === 'SELECT' || tagName === 'TEXTAREA';
+  };
+
+  window.pageLoad = (function () {
+    var loaded = false, cbs = [];
+    window.addEventListener('load', function () {
+      var i;
+      loaded = true;
+      if (cbs.length > 0) {
+        for (i = 0; i < cbs.length; i++) {
+          cbs[i]();
+        }
+      }
+    });
+    return {
+      then: function(cb) {
+        cb && (loaded ? cb() : (cbs.push(cb)));
+      }
+    };
+  })();
+})();
+(function() {
+  window.throttle = function(func, wait) {
+    var args, result, thisArg, timeoutId, lastCalled = 0;
+
+    function trailingCall() {
+      lastCalled = new Date;
+      timeoutId = null;
+      result = func.apply(thisArg, args);
+    }
+    return function() {
+      var now = new Date,
+        remaining = wait - (now - lastCalled);
+
+      args = arguments;
+      thisArg = this;
+
+      if (remaining <= 0) {
+        clearTimeout(timeoutId);
+        timeoutId = null;
+        lastCalled = now;
+        result = func.apply(thisArg, args);
+      } else if (!timeoutId) {
+        timeoutId = setTimeout(trailingCall, remaining);
+      }
+      return result;
+    };
+  };
+})();
+(function() {
+  var Set = (function() {
+    var add = function(item) {
+      var i, data = this._data;
+      for (i = 0; i < data.length; i++) {
+        if (data[i] === item) {
+          return;
+        }
+      }
+      this.size ++;
+      data.push(item);
+      return data;
+    };
+
+    var Set = function(data) {
+      this.size = 0;
+      this._data = [];
+      var i;
+      if (data.length > 0) {
+        for (i = 0; i < data.length; i++) {
+          add.call(this, data[i]);
+        }
+      }
+    };
+    Set.prototype.add = add;
+    Set.prototype.get = function(index) { return this._data[index]; };
+    Set.prototype.has = function(item) {
+      var i, data = this._data;
+      for (i = 0; i < data.length; i++) {
+        if (this.get(i) === item) {
+          return true;
+        }
+      }
+      return false;
+    };
+    Set.prototype.is = function(map) {
+      if (map._data.length !== this._data.length) { return false; }
+      var i, j, flag, tData = this._data, mData = map._data;
+      for (i = 0; i < tData.length; i++) {
+        for (flag = false, j = 0; j < mData.length; j++) {
+          if (tData[i] === mData[j]) {
+            flag = true;
+            break;
+          }
+        }
+        if (!flag) { return false; }
+      }
+      return true;
+    };
+    Set.prototype.values = function() {
+      return this._data;
+    };
+    return Set;
+  })();
+
+  window.Lazyload = (function(doc) {
+    var queue = {js: [], css: []}, sources = {js: {}, css: {}}, context = this;
+    var createNode = function(name, attrs) {
+      var node = doc.createElement(name), attr;
+      for (attr in attrs) {
+        if (attrs.hasOwnProperty(attr)) {
+          node.setAttribute(attr, attrs[attr]);
+        }
+      }
+      return node;
+    };
+    var end = function(type, url) {
+      var s, q, qi, cbs, i, j, cur, val, flag;
+      if (type === 'js' || type ==='css') {
+        s = sources[type], q = queue[type];
+        s[url] = true;
+        for (i = 0; i < q.length; i++) {
+          cur = q[i];
+          if (cur.urls.has(url)) {
+            qi = cur, val = qi.urls.values();
+            qi && (cbs = qi.callbacks);
+            for (flag = true, j = 0; j < val.length; j++) {
+              cur = val[j];
+              if (!s[cur]) {
+                flag = false;
+              }
+            }
+            if (flag && cbs && cbs.length > 0) {
+              for (j = 0; j < cbs.length; j++) {
+                cbs[j].call(context);
+              }
+              qi.load = true;
+            }
+          }
+        }
+      }
+    };
+    var load = function(type, urls, callback) {
+      var s, q, qi, node, i, cur,
+        _urls = typeof urls === 'string' ? new Set([urls]) : new Set(urls), val, url;
+      if (type === 'js' || type ==='css') {
+        s = sources[type], q = queue[type];
+        for (i = 0; i < q.length; i++) {
+          cur = q[i];
+          if (_urls.is(cur.urls)) {
+            qi = cur;
+            break;
+          }
+        }
+        val = _urls.values();
+        if (qi) {
+          callback && (qi.load || qi.callbacks.push(callback));
+          callback && (qi.load && callback());
+        } else {
+          q.push({
+            urls: _urls,
+            callbacks: callback ? [callback] : [],
+            load: false
+          });
+          for (i = 0; i < val.length; i++) {
+            node = null, url = val[i];
+            if (s[url] === undefined) {
+              (type === 'js' ) && (node = createNode('script', { src: url }));
+              (type === 'css') && (node = createNode('link', { rel: 'stylesheet', href: url }));
+              if (node) {
+                node.onload = (function(type, url) {
+                  return function() {
+                    end(type, url);
+                  };
+                })(type, url);
+                (doc.head || doc.body).appendChild(node);
+                s[url] = false;
+              }
+            }
+          }
+        }
+      }
+    };
+    return {
+      js: function(url, callback) {
+        load('js', url, callback);
+      },
+      css: function(url, callback) {
+        load('css', url, callback);
+      }
+    };
+  })(this.document);
+})();
+</script><script>
+  (function() {
+    var TEXT_VARIABLES = {
+      version: '2.2.6',
+      sources: {
+        font_awesome: 'https://cdn.bootcdn.net/ajax/libs/font-awesome/5.15.1/css/all.css',
+        jquery: 'https://cdn.bootcss.com/jquery/3.1.1/jquery.min.js',
+        leancloud_js_sdk: '//cdn.jsdelivr.net/npm/leancloud-storage@3.13.2/dist/av-min.js',
+        chart: 'https://cdn.bootcss.com/Chart.js/2.7.2/Chart.bundle.min.js',
+        gitalk: {
+          js: 'https://cdn.bootcss.com/gitalk/1.2.2/gitalk.min.js',
+          css: 'https://cdn.bootcss.com/gitalk/1.2.2/gitalk.min.css'
+        },
+        valine: 'https://unpkg.com/valine/dist/Valine.min.js',
+        mathjax: 'https://cdn.bootcss.com/mathjax/2.7.4/MathJax.js?config=TeX-MML-AM_CHTML',
+        mermaid: 'https://cdn.bootcss.com/mermaid/8.0.0-rc.8/mermaid.min.js'
+      },
+      site: {
+        toc: {
+          selectors: 'h1,h2,h3'
+        }
+      },
+      paths: {
+        search_js: '/assets/search.js'
+      }
+    };
+    window.TEXT_VARIABLES = TEXT_VARIABLES;
+  })();
+</script>
+</head>
+  <body>
+    <div class="root" data-is-touch="false">
+      <div class="layout--page js-page-root"><div class="page__main js-page-main page__viewport has-aside cell cell--auto">
+
+      <div class="page__main-inner"><div class="page__header d-print-none"><header class="header"><div class="main">
+      <div class="header__title">
+        <div class="header__brand"><svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 width="24px" height="24px" viewBox="0 0 24 24">
+<style type="text/css">
+	.st0{fill:#515151;}
+</style>
+<path class="st0" d="M1.7,22.3c5.7-5.7,11.3-5.7,17,0c3.3-3.3,3.5-5.3,0.8-6c2.7,0.7,3.5-1.1,2.3-5.6s-3.3-5.2-6.3-2.1
+	c3-3,2.3-5.2-2.1-6.3S7,1.8,7.7,4.6C7,1.8,5,2.1,1.7,5.3C7.3,11,7.3,16.7,1.7,22.3"/>
+</svg>
+<a title="No
+" href="/">Tyning Another</a></div><button class="button button--secondary button--circle search-button js-search-toggle"><i class="fas fa-search"></i></button></div><nav class="navigation">
+        <ul><li class="navigation__item"><a href="/">首页</a></li><li class="navigation__item"><a href="/archive.html">归档</a></li><li><button class="button button--secondary button--circle search-button js-search-toggle"><i class="fas fa-search"></i></button></li></ul>
+      </nav></div>
+  </header>
+</div><div class="page__content"><div class ="main"><div class="grid grid--reverse">
+
+              <div class="col-aside d-print-none js-col-aside"><aside class="page__aside js-page-aside"><div class="toc-aside js-toc-root"></div>
+</aside></div>
+
+              <div class="col-main cell cell--auto"><!-- start custom main top snippet -->
+
+<!-- end custom main top snippet -->
+<article itemscope itemtype="http://schema.org/Article"><div class="article__header"><header><h1>SpringCloud</h1></header></div><meta itemprop="headline" content="SpringCloud"><div class="article__info clearfix"><ul class="left-col menu"><li>
+              <a class="button button--secondary button--pill button--sm"
+                href="/archive.html?tag=SpringCloud">SpringCloud</a>
+            </li></ul><ul class="right-col menu"><li><i class="far fa-calendar-alt"></i> <span>2019年 06月19日</span>
+            </li></ul></div><meta itemprop="author" content="tyning.another"/><meta itemprop="datePublished" content="2019-06-19T00:00:00+08:00">
+    <meta itemprop="keywords" content="SpringCloud"><div class="js-article-content"><div class="layout--article"><!-- start custom article top snippet -->
+
+<!-- end custom article top snippet -->
+<div class="article__content" itemprop="articleBody"><p>#</p>
+
+<p>要知道什么是现在使用的东西</p>
+
+<ol>
+  <li>使用spring cloud 搭建一个系统</li>
+  <li>中间件</li>
+  <li>传统的SSO</li>
+  <li>Oauth2服务 四种授权模式</li>
+  <li><img src="springcloud.assets/image-20210406141548674.png" alt="image-20210406141548674" style="zoom:50%;" /></li>
+</ol>
+
+<p><img src="/Users/haining/Library/Application Support/typora-user-images/image-20201130114534127.png" alt="image-20201130114534127" /></p>
+
+<p><img src="/Users/haining/Library/Application Support/typora-user-images/image-20201201140334936.png" alt="image-20201201140334936" /></p>
+
+<h1 id="分布式微服务架构体系">分布式微服务架构体系</h1>
+
+<p>https://www.bilibili.com/video/BV18E411x7eT?p=18</p>
+
+<p><img src="/Users/haining/Library/Application Support/typora-user-images/image-20201201190523863.png" alt="image-20201201190523863" /></p>
+
+<h1 id="组件说明">组件说明</h1>
+
+<h2 id="服务注册中心">服务注册中心</h2>
+
+<p>Eureka等待总结：</p>
+
+<ol>
+  <li>最终的结果就是有什么样子的微服务表。如果不在的话就直接移除，如果有的话就添加到表单中。</li>
+  <li>注册中心的一个服务</li>
+</ol>
+
+<p>Eureka 不在更新</p>
+
+<p>老技术Zookeeper</p>
+
+<p>还有一个是Consul</p>
+
+<p>阿里巴巴的那个是Nacos，这个推荐使用</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>1. 什么是服务治理？主要的目的是为了实现服务调用、负载均衡、容错等，实现服务的注册与发现
+2. 什么是服务注册？
+3. Eureka有两个组件：Eureka-server（各个微服务节点通过配置启动后会在server中进行注册，server的服务注册表中会存储所有注册的服务） Eureka-client（客户端中有一个轮训负载算法的负载均衡器，回想server发送心跳，如果server多个心跳周期没有收到某个节点的心跳信号的话，服务将会被从server中移除）
+4. Eureka 1.X 和2.X的区别：pom的引用不一样了
+</code></pre></div></div>
+
+<h2 id="服务调用">服务调用</h2>
+
+<p>一、 Ribbon的讲解：</p>
+
+<ol>
+  <li>负债均衡工具</li>
+  <li>是<strong>客户端</strong>的负载均衡工具</li>
+  <li>是<strong>软</strong>负债均衡的客户端工具</li>
+  <li>负债均衡的英文缩写是<strong>LB</strong></li>
+</ol>
+
+<p>二、一个小问题：负债均衡的分类是集中式和进程式Ribbon和Nginx所说的负债均衡的不同点？</p>
+
+<p>三、Ribbon的说明：会先得得到注册中心中注册的信息服务列表，然后将其缓存到本地的JVM中，然后在客户端本地实现RPC远程调用。</p>
+
+<p>四、Ribbon功能组成：负载均衡 和接口RPC远程调用两个功能</p>
+
+<p>五、Ribbon工作步骤：</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>1. 先将注册中心中的信息缓存在本地。
+2. 然后根据用户指定的负债均衡的策略，然后选择一个地址。
+3. 选择一个地址然后进行调用。
+</code></pre></div></div>
+
+<p>六、负债均衡的策略有：轮询、随机、更具时间响应时间加权。</p>
+
+<p>七、 引入pom包如果使用了新的eureka的升级的的pom引入的话那么就不需要在新的引入了</p>
+
+<p>八、Ribbon的结构： 负载均衡 + RestTemplate</p>
+
+<p>九、RestTemplate工具的熟悉</p>
+
+<p>十、 负债均衡的7种实现（IRule的7中实现）</p>
+
+<p><img src="/Users/haining/Library/Application Support/typora-user-images/image-20210125185409125.png" alt="image-20210125185409125" /></p>
+
+<p>RoundRobinRule：轮询</p>
+
+<p>RandomRule：随机</p>
+
+<p>RetryRule：先按照RoundRobinRule（轮询）策略获取服务，如果获取服务失败则在指定时间内进行重试，如果超出重试的最大时间就放弃轮询顺序选择下一个链接，然后不停的重复这个规则然后直到获取可用的服务；（<strong>如果轮询的时候出现都不可用的服务该如何处理</strong>）</p>
+
+<p>BestAvailableRule：遍历所有服务，先过滤掉由于多次访问故障而处于断路器跳闸状态的服务，然后选择一个并发量最小的服务，如果所有服务的这两个指标的都一样的话就使用RoundRobinRule选择一个。</p>
+
+<p>AvailabilityFilteringRule：会先过滤掉由于多次访问故障而处于断路器状态的服务，还有并发的连接数量超过阈值的服务，然后对剩余的服务列表按照轮询策略进行访问；</p>
+
+<p>WeightedResponseTimeRule：对RoundRobinRule的扩展，先使用RoundRobinRule进行轮询，然后响应速度越快的示例选择全中遇到，越容易被选择</p>
+
+<p>ZoneAvoidanceRule</p>
+
+<p>十一、Ribbon自定义规则 这里边的三个原理需要补充</p>
+
+<p><img src="/Users/haining/Library/Application Support/typora-user-images/image-20210208143336464.png" alt="image-20210208143336464" /></p>
+
+<p>https://www.bilibili.com/video/BV18E411x7eT?p=38</p>
+
+<p>Ribbon 停止更新现在还可以使用</p>
+
+ 	1. 是客户端负载均衡工具，提供客户端的负债均衡的算法和服务调用。还可以配置链接超时什么的链接中的一些配置与方法。httpclient的封装，和eureka的配合调用工具等。
+ 	  	1. 负载均衡（LB）分为两种： <strong>集中式LB；进程内LB</strong>。那么ngix与ribbon的区别：ribbon是本地负载均衡，是进程内LB；ngix是服务器的负载均衡是集中式LB
+ 	  	2. 最后总结什么是Ribbon？本地负载均衡+restTemplate调用
+ 	  	3. 软负载均衡的客户端组件，他可以和其他所需请求的客户端结合使用，和eureka结合知识其中的一个实例。
+ 	2. Ribbon在工作室分为两步
+ 		1. 第一步先选择EurekaServer，他优先选择在同一个区域内如在较少的server
+ 		2. 第二部在根据用户指定的策略，在从server渠道的服务注册列表中选择一个地址
+ 	3. Ribbon提供了多种负载均衡策略：轮训、随机和根据响应时间加权重
+ 	4. Ribbon在cloud-client新版中被继承。
+
+<p>LoadBalancer 这个也可以用但是出来的时间不长</p>
+
+<h2 id="服务调用2">服务调用2</h2>
+
+<p>Feign 不要用了</p>
+
+<ol>
+  <li>Feign是一个声明式的Web服务客户端，说白了就是一个微服务接口与java声明式接口绑定的工具</li>
+  <li>一个接口被多次调用，所以通常都会针对每个微服务自行分装一些客户端类来包装这些依赖服务的调用。所以feign的实现下，我们只需要创建一个接口并使用注解的方式配置大就可以完成对服务方的接口绑定。</li>
+  <li>Feign内置了Ribbon。使用Feign定义的注解，调用这个接口就能调动注册中心的服务</li>
+  <li>用在消费方</li>
+</ol>
+
+<p>OpenFeign 社区提供的Feign</p>
+
+<ol>
+  <li>是在Feign的基础之上支持了SpringMVC的注解，然后通过动态代理的方式产生实现类，实现类中做负载均衡并调动服务</li>
+  <li>OpenFeign的实现：微服务调用接口+@FeignClient 第一步在需要调用的springboot启动类中添加@EnableFeignClients，然后在service接口中添加@Component和@FeignClient(value = “PAYMENT-SERVER”) 其中value是微服务的名字。方法上使用@GetMappingspringMVC的注解，这样就可以使用service中调用了。</li>
+  <li>消费者调用服务方的服务时候是通过网络服务所以需要考虑链接超时问题。其中OpenFeign默认超时是1秒钟，如果调用的服务接口1秒钟没有返回就会超时报错。如果想要定制这个1秒钟的超时为其他的话就需要在yml中修改配置。以为OpenFeign底层使用的是ribbon来实现负载均衡的所有这个超时配置修改，是修改的是ribbon的超时间配置。在yml中添加ribbon:ReadtimeOut：5000 ConnectTimeOut：5000</li>
+  <li>OpenFeign提供了日志打印功能，可以答应feign请求http的详细情况。日志级别是可以设置的有四种NONE默认不打印日志；BASIC:仅记录请求方法、URL、响应状态码以及执行时间；HEADERS。除了BASIC中定义的信息外还有请求的响应的头信息；FULL:除了HEADERS中定义的信息，还有请求和响应的正文以及元数据。</li>
+</ol>
+
+<h2 id="服务降级">服务降级</h2>
+
+<p>Hystrix 不再用了，停止更新了</p>
+
+<p>问题出现的场景：微服务越来越多，微服务的依赖也越来越多。如果在调用链路上的一个或者多个节点出现问题之后，该如何保证服务的正常运行，这个Hystrix框架就是用来解决这种情况的。</p>
+
+<p>一、定义：</p>
+
+<p>​	Hystrix是一个分布式系统的延迟和容错的开源库。在两路中一个依赖出现问题的情况下，不会导致整个服务失败，避免级联故障，以提高分布式系统的弹性</p>
+
+<p>二、能够处理问题的方法：服务熔断和服务降级以及接近实时的监控、限流、隔离</p>
+
+<p>三、第“二”条中的概念</p>
+
+<ol>
+  <li>服务降级（fallback）
+    <ol>
+      <li>如果调用的服务出现异常，向调用方返回一个符合预期的可处理的备选响应（Fallback）</li>
+      <li>哪些情况会触发降级呢？
+        <ol>
+          <li>程序运行异常</li>
+          <li>请求超时异常</li>
+          <li>服务熔断触发服务降级</li>
+          <li>线程池或者信号量打满也会导致服务降级</li>
+        </ol>
+      </li>
+    </ol>
+  </li>
+  <li>服务熔断（break）
+    <ol>
+      <li>先将服务断掉，然后调用服务降级的方法并返回友好提示</li>
+      <li>处理过程：服务的降级-&gt;进而熔断-&gt;恢复调用链路</li>
+    </ol>
+  </li>
+  <li>服务限流（flowlimit）
+    <ol>
+      <li>如果对于一个服务来说如果一个高并发过来流量拥挤，然后就让这个大流量排队，按照服务能够处理的能力来排队处理</li>
+    </ol>
+  </li>
+</ol>
+
+<p>四、产生服务降级的问题，以及如何解决下边三个维度</p>
+
+<ol>
+  <li>超时导致服务器变慢-》超时不再等待</li>
+  <li>出错（调用服务宕机或者程序运行出错）-》要有兜底的逻辑</li>
+  <li>如果对方服务是ok的但是业务要求调用方需要被调用的服务在有效时间内给出答案如果不行的话需要服务降级处理</li>
+</ol>
+
+<p>五、服务降级的配置</p>
+
+<ol>
+  <li>可以使用注解也可以使用类继承，这里直接说注解的使用@HystrixCommand。在微服务的启动类上添加该注解。</li>
+</ol>
+
+<p>https://www.bilibili.com/video/BV18E411x7eT?p=54</p>
+
+<ol>
+  <li>降级有两种一种是自己对自己的降级，就是监控自己的一个方法，如果方法报错的话要有一个兜底的处理方法（服务端降级保护）。另外一种就是如果调用其他微服务的时候报错，那么对返回的错误或者等不到的时候就做其他兜底方法处理（客户端降级保护）</li>
+  <li>自定义和全局的降级处理，在接口类上边直接用一个@defaultProperties 然后定义一个defaultFallback方法。</li>
+  <li>还可以使用@feiClint中的defaultFallBack类，指定一个实现了interface类，让指定的实现的interface的类，然后重载实现所有方法，并写去处理逻辑</li>
+</ol>
+
+<p>六、服务熔断</p>
+
+<p><img src="/Users/haining/Library/Application Support/typora-user-images/image-20210209151412136.png" alt="image-20210209151412136" /></p>
+
+<ol>
+  <li>先关闭服务然后返回提示</li>
+  <li>断路器 open closed half-open</li>
+  <li>请求次数是否达到了峰值</li>
+  <li>涉及到断路器的三个重要参数：快照时间窗、请求总数阈值、错误百分比</li>
+  <li>断路器关闭的条件：
+    <ol>
+      <li>当满足一定的阈值的时候</li>
+      <li>当失败率达到一定的时候</li>
+      <li>达到以上法制断路器将会开启</li>
+      <li>当开启的时候所有请求都不会进行转发</li>
+      <li>一段时间之后这个时候断路器是搬开状态会让其中一个请求进行转发如果陈宫断路器会关闭如失败，继续开启重复4和5</li>
+    </ol>
+  </li>
+  <li>工作流程需要总结</li>
+</ol>
+
+<p>七、服务限流</p>
+
+<ol>
+  <li>
+    <p>在sentinel进行讲解</p>
+  </li>
+  <li>服务雪崩问题
+    <ol>
+      <li>“扇出”结构：说的就是多个微服务之间的调用，如果微服务A调用B，B有调用C，C和B有调用其他微服务</li>
+      <li>如果扇出来的链路上某个微服务的调用时间过长或者不可用，对微服务A的调用就会占用越来越多的系统资源，进而引起系统崩溃。这个现象叫做雪崩效应</li>
+      <li>对于高流量应用来说，单一的后端依赖可能会导致所有服务器上的资源都在几秒内饱和。比失败更糟糕的是，这些应用程序还可能导致服务之间的延迟增加，备份队列，线程和其他系统资源紧张，导致整个系统发生更多的级联故障。<strong>这些都表示需要对故障和延迟进行隔离和管理，以便单个依赖关系的失败，不能取消整个应用程序或者系统</strong>。</li>
+      <li>通常当你法相一个模块下的某个实力失败后，这时候这个模块一样还会接受流量，然后这个有问题的模块还调用了其他模块，这样就发生级联故障，或者叫雪崩。</li>
+    </ol>
+  </li>
+  <li>Hystrix是一个处理分布式系统<strong>延迟</strong>和<strong>容错</strong>的开元库，在分布式系统里，许多依赖不可避免的会调用失败，比如超市、异常等，Hystrix能够保证在一个依赖出现问题的情况下，不会导致整个服务失败，避免级联故障，以提高分布式系统的弹性。</li>
+  <li>Hystrix就是一个“断路器”，当某个服务单元发生故障之后，通过断路器的故障监控，<strong>向调用方返回一个符合预期的、可处理的备选响应（FallBack），而不是长时间的等待或者跑出调用方无法处理的异常</strong>，这样就保证了调用方的线程不会备长时间、不必要的张勇虫儿避免了故障在分布式系统中的蔓延，乃至雪崩。
+4.</li>
+</ol>
+
+<p>resilience4j 国外推荐使用</p>
+
+<p>Sentinel 国内推荐，阿里巴巴</p>
+
+<h2 id="服务网关">服务网关</h2>
+
+<p><img src="/Users/haining/Library/Application Support/typora-user-images/image-20201209170703442.png" alt="image-20201209170703442" /></p>
+
+<p>Zuul 不再维护</p>
+
+<p>1.</p>
+
+<p>gateway spring自己出的</p>
+
+<ol>
+  <li>异步非阻塞模型</li>
+  <li>getway具有如下特点：
+    <ol>
+      <li>基于spring framkework5，project reactor，spring boot2.0 构建的</li>
+      <li>动态路由：能够匹配任何请求属性</li>
+      <li>可以对路由指定断言和过滤器</li>
+      <li>集成Hystrix的断路器功能</li>
+      <li>集成spring cloud 服务发现功能</li>
+      <li>易于编写的断言和filter</li>
+      <li>请求限流功能</li>
+      <li>支持路径重写</li>
+    </ol>
+  </li>
+  <li>spring cloud的Finchley正式版本之前都推荐Zuul
+    <ol>
+      <li>Zuul1.x使用的是一个基于阻塞I/O的API 网关
+2.</li>
+    </ol>
+  </li>
+</ol>
+
+<p>一、gateway</p>
+
+<ol>
+  <li>基于webflux框架实现 webflux使用的netty</li>
+  <li>目标提供统一的路由方式且基于Filter链的方式提供了网关基本功能</li>
+  <li>有什么功能：
+    <ol>
+      <li>反向代理</li>
+      <li>鉴权</li>
+      <li>流量控制</li>
+      <li>熔断</li>
+      <li>日志监控</li>
+    </ol>
+  </li>
+  <li>特性
+    <ol>
+      <li>动态路由</li>
+      <li>可以对路由指定断言和过滤器</li>
+      <li>继承Hystrix的断路器功能</li>
+      <li>继承String cloud服务发现功能</li>
+      <li>已与编写的断言和过滤器</li>
+      <li>请求限流功能</li>
+      <li>支持路径重写</li>
+    </ol>
+  </li>
+  <li>三个重要的部分：
+    <ol>
+      <li>Route路由</li>
+      <li>Predicate断言</li>
+      <li>Filter过滤器</li>
+    </ol>
+  </li>
+  <li>路由映射
+1.</li>
+  <li>网关也是一个微服务</li>
+  <li>如何进行路由配置
+    <ol>
+      <li>使用yml进行配置</li>
+      <li>如果yml配置太多可以使用硬编码配置使用bean</li>
+    </ol>
+  </li>
+</ol>
+
+<p>https://www.bilibili.com/video/BV18E411x7eT?p=70&amp;spm_id_from=pageDriver</p>
+
+<h2 id="服务配置">服务配置</h2>
+
+<p>config 现在不再使用了</p>
+
+<p>可以使用Nacos</p>
+
+<h2 id="服务总线">服务总线</h2>
+
+<p>Bus 现在不用了</p>
+
+<p>携程还有一个appllo也用起来不错</p>
+
+<p>可以使用Nacos</p>
+
+<h1 id="微服务问题">微服务问题</h1>
+
+<ol>
+  <li>
+    <p>CAP问题</p>
+
+    <ol>
+      <li>
+        <p>CAP定理：
+       指的是在一个分布式系统中，Consistency（一致性）、 Availability（可用性）、Partition tolerance（分区容错性），三者不可同时获得。</p>
+      </li>
+      <li>一致性（C）：在分布式系统中的所有数据备份，在同一时刻是否同样的值。</li>
+      <li>可用性（A）：负载过大后，集群整体是否还能响应客户端的读写请求
+4.</li>
+      <li>qps(每秒访问量)</li>
+    </ol>
+  </li>
+</ol>
+
+<p>2.</p>
+
+<p>Seata 服务  shardingsphere</p>
+
+<p>https://www.infoq.cn/article/w6wkhscktpa3-qmqi4gr</p>
+</div><div class="d-print-none"><footer class="article__footer"><meta itemprop="dateModified" content="2019-06-19T00:00:00+08:00"><!-- start custom article footer snippet -->
+
+<!-- end custom article footer snippet -->
+</footer>
+<div class="article__section-navigator clearfix"><div class="previous"><span>上篇</span><a href="/spring/%E6%BA%90%E7%A0%81/2019/06/19/spring.html">Spring</a></div><div class="next"><span>下篇</span><a href="/spring/%E6%BA%90%E7%A0%81/2019/06/19/spring.html">Spring</a></div></div></div>
+
+</div>
+
+<script>(function() {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    $(function() {
+      var $this ,$scroll;
+      var $articleContent = $('.js-article-content');
+      var hasSidebar = $('.js-page-root').hasClass('layout--page--sidebar');
+      var scroll = hasSidebar ? '.js-page-main' : 'html, body';
+      $scroll = $(scroll);
+
+      $articleContent.find('.highlight').each(function() {
+        $this = $(this);
+        $this.attr('data-lang', $this.find('code').attr('data-lang'));
+      });
+      $articleContent.find('h1[id], h2[id], h3[id], h4[id], h5[id], h6[id]').each(function() {
+        $this = $(this);
+        $this.append($('<a class="anchor d-print-none" aria-hidden="true"></a>').html('<i class="fas fa-anchor"></i>'));
+      });
+      $articleContent.on('click', '.anchor', function() {
+        $scroll.scrollToAnchor('#' + $(this).parent().attr('id'), 400);
+      });
+    });
+  });
+})();
+</script>
+</div><section class="page__comments d-print-none"></section></article><!-- start custom main bottom snippet -->
+
+<!-- end custom main bottom snippet -->
+</div>
+            </div></div></div><div class="page__footer d-print-none">
+<footer class="footer py-4 js-page-footer">
+  <div class="main"><div itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="tyning.another"><meta itemprop="url" content="/"><div class="footer__author-links"><div class="author-links">
+  <ul class="menu menu--nowrap menu--inline"></ul>
+</div>
+</div>
+    </div><div class="site-info mt-2">
+      <div><!-- © Tyning Another 2021. -->
+      </div>
+    </div>
+  </div>
+</footer>
+</div></div>
+    </div><script>(function() {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    var $body = $('body'), $window = $(window);
+    var $pageRoot = $('.js-page-root'), $pageMain = $('.js-page-main');
+    var activeCount = 0;
+    function modal(options) {
+      var $root = this, visible, onChange, hideWhenWindowScroll = false;
+      var scrollTop;
+      function setOptions(options) {
+        var _options = options || {};
+        visible = _options.initialVisible === undefined ? false : show;
+        onChange = _options.onChange;
+        hideWhenWindowScroll = _options.hideWhenWindowScroll;
+      }
+      function init() {
+        setState(visible);
+      }
+      function setState(isShow) {
+        if (isShow === visible) {
+          return;
+        }
+        visible = isShow;
+        if (visible) {
+          activeCount++;
+          scrollTop = $(window).scrollTop() || $pageMain.scrollTop();
+          $root.addClass('modal--show');
+          $pageMain.scrollTop(scrollTop);
+          activeCount === 1 && ($pageRoot.addClass('show-modal'), $body.addClass('of-hidden'));
+          hideWhenWindowScroll && window.hasEvent('touchstart') && $window.on('scroll', hide);
+          $window.on('keyup', handleKeyup);
+        } else {
+          activeCount > 0 && activeCount--;
+          $root.removeClass('modal--show');
+          $window.scrollTop(scrollTop);
+          activeCount === 0 && ($pageRoot.removeClass('show-modal'), $body.removeClass('of-hidden'));
+          hideWhenWindowScroll && window.hasEvent('touchstart') && $window.off('scroll', hide);
+          $window.off('keyup', handleKeyup);
+        }
+        onChange && onChange(visible);
+      }
+      function show() {
+        setState(true);
+      }
+      function hide() {
+        setState(false);
+      }
+      function handleKeyup(e) {
+        // Char Code: 27  ESC
+        if (e.which ===  27) {
+          hide();
+        }
+      }
+      setOptions(options);
+      init();
+      return {
+        show: show,
+        hide: hide,
+        $el: $root
+      };
+    }
+    $.fn.modal = modal;
+  });
+})();
+</script><div class="modal modal--overflow page__search-modal d-print-none js-page-search-modal"><script>
+(function () {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    // search panel
+    var search = (window.search || (window.search = {}));
+    var useDefaultSearchBox = window.useDefaultSearchBox === undefined ?
+      true : window.useDefaultSearchBox ;
+
+    var $searchModal = $('.js-page-search-modal');
+    var $searchToggle = $('.js-search-toggle');
+    var searchModal = $searchModal.modal({ onChange: handleModalChange, hideWhenWindowScroll: true });
+    var modalVisible = false;
+    search.searchModal = searchModal;
+
+    var $searchBox = null;
+    var $searchInput = null;
+    var $searchClear = null;
+
+    function getModalVisible() {
+      return modalVisible;
+    }
+    search.getModalVisible = getModalVisible;
+
+    function handleModalChange(visible) {
+      modalVisible = visible;
+      if (visible) {
+        search.onShow && search.onShow();
+        useDefaultSearchBox && $searchInput[0] && $searchInput[0].focus();
+      } else {
+        search.onShow && search.onHide();
+        useDefaultSearchBox && $searchInput[0] && $searchInput[0].blur();
+        setTimeout(function() {
+          useDefaultSearchBox && ($searchInput.val(''), $searchBox.removeClass('not-empty'));
+          search.clear && search.clear();
+          window.pageAsideAffix && window.pageAsideAffix.refresh();
+        }, 400);
+      }
+    }
+
+    $searchToggle.on('click', function() {
+      modalVisible ? searchModal.hide() : searchModal.show();
+    });
+    // Char Code: 83  S, 191 /
+    $(window).on('keyup', function(e) {
+      if (!modalVisible && !window.isFormElement(e.target || e.srcElement) && (e.which === 83 || e.which === 191)) {
+        modalVisible || searchModal.show();
+      }
+    });
+
+    if (useDefaultSearchBox) {
+      $searchBox = $('.js-search-box');
+      $searchInput = $searchBox.children('input');
+      $searchClear = $searchBox.children('.js-icon-clear');
+      search.getSearchInput = function() {
+        return $searchInput.get(0);
+      };
+      search.getVal = function() {
+        return $searchInput.val();
+      };
+      search.setVal = function(val) {
+        $searchInput.val(val);
+      };
+
+      $searchInput.on('focus', function() {
+        $(this).addClass('focus');
+      });
+      $searchInput.on('blur', function() {
+        $(this).removeClass('focus');
+      });
+      $searchInput.on('input', window.throttle(function() {
+        var val = $(this).val();
+        if (val === '' || typeof val !== 'string') {
+          search.clear && search.clear();
+        } else {
+          $searchBox.addClass('not-empty');
+          search.onInputNotEmpty && search.onInputNotEmpty(val);
+        }
+      }, 400));
+      $searchClear.on('click', function() {
+        $searchInput.val(''); $searchBox.removeClass('not-empty');
+        search.clear && search.clear();
+      });
+    }
+  });
+})();
+</script><div class="search search--dark">
+  <div class="main">
+    <div class="search__header">搜索</div>
+    <div class="search-bar">
+      <div class="search-box js-search-box">
+        <div class="search-box__icon-search"><i class="fas fa-search"></i></div>
+        <input type="text" />
+        <div class="search-box__icon-clear js-icon-clear">
+          <a><i class="fas fa-times"></i></a>
+        </div>
+      </div>
+      <button class="button button--theme-dark button--pill search__cancel js-search-toggle">
+        取消</button>
+    </div>
+    <div class="search-result js-search-result"></div>
+  </div>
+</div>
+<script>var SOURCES = window.TEXT_VARIABLES.sources;
+var PAHTS = window.TEXT_VARIABLES.paths;
+window.Lazyload.js([SOURCES.jquery, PAHTS.search_js], function() {
+  var search = (window.search || (window.search = {}));
+  var searchData = window.TEXT_SEARCH_DATA || {};
+
+  function memorize(f) {
+    var cache = {};
+    return function () {
+      var key = Array.prototype.join.call(arguments, ',');
+      if (key in cache) return cache[key];
+      else return cache[key] = f.apply(this, arguments);
+    };
+  }
+
+  /// search
+  function searchByQuery(query) {
+    var i, j, key, keys, cur, _title, result = {};
+    keys = Object.keys(searchData);
+    for (i = 0; i < keys.length; i++) {
+      key = keys[i];
+      for (j = 0; j < searchData[key].length; j++) {
+        cur = searchData[key][j], _title = cur.title;
+        if ((result[key] === undefined || result[key] && result[key].length < 4 )
+          && _title.toLowerCase().indexOf(query.toLowerCase()) >= 0) {
+          if (result[key] === undefined) {
+            result[key] = [];
+          }
+          result[key].push(cur);
+        }
+      }
+    }
+    return result;
+  }
+
+  var renderHeader = memorize(function(header) {
+    return $('<p class="search-result__header">' + header + '</p>');
+  });
+
+  var renderItem = function(index, title, url) {
+    return $('<li class="search-result__item" data-index="' + index + '"><a class="button" href="' + url + '">' + title + '</a></li>');
+  };
+
+  function render(data) {
+    if (!data) { return null; }
+    var $root = $('<ul></ul>'), i, j, key, keys, cur, itemIndex = 0;
+    keys = Object.keys(data);
+    for (i = 0; i < keys.length; i++) {
+      key = keys[i];
+      $root.append(renderHeader(key));
+      for (j = 0; j < data[key].length; j++) {
+        cur = data[key][j];
+        $root.append(renderItem(itemIndex++, cur.title, cur.url));
+      }
+    }
+    return $root;
+  }
+
+  // search box
+  var $result = $('.js-search-result'), $resultItems;
+  var lastActiveIndex, activeIndex;
+
+  function clear() {
+    $result.html(null);
+    $resultItems = $('.search-result__item'); activeIndex = 0;
+  }
+  function onInputNotEmpty(val) {
+    $result.html(render(searchByQuery(val)));
+    $resultItems = $('.search-result__item'); activeIndex = 0;
+    $resultItems.eq(0).addClass('active');
+  }
+
+  search.clear = clear;
+  search.onInputNotEmpty = onInputNotEmpty;
+
+  function updateResultItems() {
+    lastActiveIndex >= 0 && $resultItems.eq(lastActiveIndex).removeClass('active');
+    activeIndex >= 0 && $resultItems.eq(activeIndex).addClass('active');
+  }
+
+  function moveActiveIndex(direction) {
+    var itemsCount = $resultItems ? $resultItems.length : 0;
+    if (itemsCount > 1) {
+      lastActiveIndex = activeIndex;
+      if (direction === 'up') {
+        activeIndex = (activeIndex - 1 + itemsCount) % itemsCount;
+      } else if (direction === 'down') {
+        activeIndex = (activeIndex + 1 + itemsCount) % itemsCount;
+      }
+      updateResultItems();
+    }
+  }
+
+  // Char Code: 13  Enter, 37  ⬅, 38  ⬆, 39  ➡, 40  ⬇
+  $(window).on('keyup', function(e) {
+    var modalVisible = search.getModalVisible && search.getModalVisible();
+    if (modalVisible) {
+      if (e.which === 38) {
+        modalVisible && moveActiveIndex('up');
+      } else if (e.which === 40) {
+        modalVisible && moveActiveIndex('down');
+      } else if (e.which === 13) {
+        modalVisible && $resultItems && activeIndex >= 0 && $resultItems.eq(activeIndex).children('a')[0].click();
+      }
+    }
+  });
+
+  $result.on('mouseover', '.search-result__item > a', function() {
+    var itemIndex = $(this).parent().data('index');
+    itemIndex >= 0 && (lastActiveIndex = activeIndex, activeIndex = itemIndex, updateResultItems());
+  });
+});
+</script>
+</div></div>
+
+
+<script>(function() {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    function scrollToAnchor(anchor, duration, callback) {
+      var $root = this;
+      $root.animate({ scrollTop: $(anchor).position().top }, duration, function() {
+        window.history.replaceState(null, '', window.location.href.split('#')[0] + anchor);
+        callback && callback();
+      });
+    }
+    $.fn.scrollToAnchor = scrollToAnchor;
+  });
+})();
+(function() {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    function affix(options) {
+      var $root = this, $window = $(window), $scrollTarget, $scroll,
+        offsetBottom = 0, scrollTarget = window, scroll = window.document, disabled = false, isOverallScroller = true,
+        rootTop, rootLeft, rootHeight, scrollBottom, rootBottomTop,
+        hasInit = false, curState;
+
+      function setOptions(options) {
+        var _options = options || {};
+        _options.offsetBottom && (offsetBottom = _options.offsetBottom);
+        _options.scrollTarget && (scrollTarget = _options.scrollTarget);
+        _options.scroll && (scroll = _options.scroll);
+        _options.disabled !== undefined && (disabled = _options.disabled);
+        $scrollTarget = $(scrollTarget);
+        isOverallScroller = window.isOverallScroller($scrollTarget[0]);
+        $scroll = $(scroll);
+      }
+      function preCalc() {
+        top();
+        rootHeight = $root.outerHeight();
+        rootTop = $root.offset().top + (isOverallScroller ? 0 :  $scrollTarget.scrollTop());
+        rootLeft = $root.offset().left;
+      }
+      function calc(needPreCalc) {
+        needPreCalc && preCalc();
+        scrollBottom = $scroll.outerHeight() - offsetBottom - rootHeight;
+        rootBottomTop = scrollBottom - rootTop;
+      }
+      function top() {
+        if (curState !== 'top') {
+          $root.removeClass('fixed').css({
+            left: 0,
+            top: 0
+          });
+          curState = 'top';
+        }
+      }
+      function fixed() {
+        if (curState !== 'fixed') {
+          $root.addClass('fixed').css({
+            left: rootLeft + 'px',
+            top: 0
+          });
+          curState = 'fixed';
+        }
+      }
+      function bottom() {
+        if (curState !== 'bottom') {
+          $root.removeClass('fixed').css({
+            left: 0,
+            top: rootBottomTop + 'px'
+          });
+          curState = 'bottom';
+        }
+      }
+      function setState() {
+        var scrollTop = $scrollTarget.scrollTop();
+        if (scrollTop >= rootTop && scrollTop <= scrollBottom) {
+          fixed();
+        } else if (scrollTop < rootTop) {
+          top();
+        } else {
+          bottom();
+        }
+      }
+      function init() {
+        if(!hasInit) {
+          var interval, timeout;
+          calc(true); setState();
+          // run calc every 100 millisecond
+          interval = setInterval(function() {
+            calc();
+          }, 100);
+          timeout = setTimeout(function() {
+            clearInterval(interval);
+          }, 45000);
+          window.pageLoad.then(function() {
+            setTimeout(function() {
+              clearInterval(interval);
+              clearTimeout(timeout);
+            }, 3000);
+          });
+          $scrollTarget.on('scroll', function() {
+            disabled || setState();
+          });
+          $window.on('resize', function() {
+            disabled || (calc(true), setState());
+          });
+          hasInit = true;
+        }
+      }
+
+      setOptions(options);
+      if (!disabled) {
+        init();
+      }
+      $window.on('resize', window.throttle(function() {
+        init();
+      }, 200));
+      return {
+        setOptions: setOptions,
+        refresh: function() {
+          calc(true, { animation: false }); setState();
+        }
+      };
+    }
+    $.fn.affix = affix;
+  });
+})();
+(function() {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    function toc(options) {
+      var $root = this, $window = $(window), $scrollTarget, $scroller, $tocUl = $('<ul class="toc toc--ellipsis"></ul>'), $tocLi, $headings, $activeLast, $activeCur,
+        selectors = 'h1,h2,h3', container = 'body', scrollTarget = window, scroller = 'html, body', disabled = false,
+        headingsPos, scrolling = false, hasRendered = false, hasInit = false;
+
+      function setOptions(options) {
+        var _options = options || {};
+        _options.selectors && (selectors = _options.selectors);
+        _options.container && (container = _options.container);
+        _options.scrollTarget && (scrollTarget = _options.scrollTarget);
+        _options.scroller && (scroller = _options.scroller);
+        _options.disabled !== undefined && (disabled = _options.disabled);
+        $headings = $(container).find(selectors).filter('[id]');
+        $scrollTarget = $(scrollTarget);
+        $scroller = $(scroller);
+      }
+      function calc() {
+        headingsPos = [];
+        $headings.each(function() {
+          headingsPos.push(Math.floor($(this).position().top));
+        });
+      }
+      function setState(element, disabled) {
+        var scrollTop = $scrollTarget.scrollTop(), i;
+        if (disabled || !headingsPos || headingsPos.length < 1) { return; }
+        if (element) {
+          $activeCur = element;
+        } else {
+          for (i = 0; i < headingsPos.length; i++) {
+            if (scrollTop >= headingsPos[i]) {
+              $activeCur = $tocLi.eq(i);
+            } else {
+              $activeCur || ($activeCur = $tocLi.eq(i));
+              break;
+            }
+          }
+        }
+        $activeLast && $activeLast.removeClass('active');
+        ($activeLast = $activeCur).addClass('active');
+      }
+      function render() {
+        if(!hasRendered) {
+          $root.append($tocUl);
+          $headings.each(function() {
+            var $this = $(this);
+            $tocUl.append($('<li></li>').addClass('toc-' + $this.prop('tagName').toLowerCase())
+              .append($('<a></a>').text($this.text()).attr('href', '#' + $this.prop('id'))));
+          });
+          $tocLi = $tocUl.children('li');
+          $tocUl.on('click', 'a', function(e) {
+            e.preventDefault();
+            var $this = $(this);
+            scrolling = true;
+            setState($this.parent());
+            $scroller.scrollToAnchor($this.attr('href'), 400, function() {
+              scrolling = false;
+            });
+          });
+        }
+        hasRendered = true;
+      }
+      function init() {
+        var interval, timeout;
+        if(!hasInit) {
+          render(); calc(); setState(null, scrolling);
+          // run calc every 100 millisecond
+          interval = setInterval(function() {
+            calc();
+          }, 100);
+          timeout = setTimeout(function() {
+            clearInterval(interval);
+          }, 45000);
+          window.pageLoad.then(function() {
+            setTimeout(function() {
+              clearInterval(interval);
+              clearTimeout(timeout);
+            }, 3000);
+          });
+          $scrollTarget.on('scroll', function() {
+            disabled || setState(null, scrolling);
+          });
+          $window.on('resize', window.throttle(function() {
+            if (!disabled) {
+              render(); calc(); setState(null, scrolling);
+            }
+          }, 100));
+        }
+        hasInit = true;
+      }
+
+      setOptions(options);
+      if (!disabled) {
+        init();
+      }
+      $window.on('resize', window.throttle(function() {
+        init();
+      }, 200));
+      return {
+        setOptions: setOptions
+      };
+    }
+    $.fn.toc = toc;
+  });
+})();
+/*(function () {
+
+})();*/
+</script><script>
+  /* toc must before affix, since affix need to konw toc' height. */(function() {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  var TOC_SELECTOR = window.TEXT_VARIABLES.site.toc.selectors;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    var $window = $(window);
+    var $articleContent = $('.js-article-content');
+    var $tocRoot = $('.js-toc-root'), $col2 = $('.js-col-aside');
+    var toc;
+    var tocDisabled = false;
+    var hasSidebar = $('.js-page-root').hasClass('layout--page--sidebar');
+    var hasToc = $articleContent.find(TOC_SELECTOR).length > 0;
+
+    function disabled() {
+      return $col2.css('display') === 'none' || !hasToc;
+    }
+
+    tocDisabled = disabled();
+
+    toc = $tocRoot.toc({
+      selectors: TOC_SELECTOR,
+      container: $articleContent,
+      scrollTarget: hasSidebar ? '.js-page-main' : null,
+      scroller: hasSidebar ? '.js-page-main' : null,
+      disabled: tocDisabled
+    });
+
+    $window.on('resize', window.throttle(function() {
+      tocDisabled = disabled();
+      toc && toc.setOptions({
+        disabled: tocDisabled
+      });
+    }, 100));
+
+  });
+})();
+(function() {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    var $window = $(window), $pageFooter = $('.js-page-footer');
+    var $pageAside = $('.js-page-aside');
+    var affix;
+    var tocDisabled = false;
+    var hasSidebar = $('.js-page-root').hasClass('layout--page--sidebar');
+
+    affix = $pageAside.affix({
+      offsetBottom: $pageFooter.outerHeight(),
+      scrollTarget: hasSidebar ? '.js-page-main' : null,
+      scroller: hasSidebar ? '.js-page-main' : null,
+      scroll: hasSidebar ? $('.js-page-main').children() : null,
+      disabled: tocDisabled
+    });
+
+    $window.on('resize', window.throttle(function() {
+      affix && affix.setOptions({
+        disabled: tocDisabled
+      });
+    }, 100));
+
+    window.pageAsideAffix = affix;
+  });
+})();
+</script><script>
+  window.Lazyload.js(['https://cdn.bootcss.com/jquery/3.1.1/jquery.min.js', 'https://cdn.bootcss.com/Chart.js/2.7.2/Chart.bundle.min.js'], function() {
+    var $canvas = null, $this = null, _ctx = null, _text = '';
+    $('.language-chart').each(function(){
+      $this = $(this);
+      $canvas = $('<canvas></canvas>');
+      _text = $this.text();
+      $this.text('').append($canvas);
+      _ctx = $canvas.get(0).getContext('2d');
+      (_ctx && _text) && (new Chart(_ctx, JSON.parse(_text)) && $this.attr('data-processed', true));
+    });
+  });
+</script>
+<script type="text/x-mathjax-config">
+	var _config = { tex2jax: {
+		inlineMath: [['$','$'], ['\\(','\\)']]
+	}};_config.TeX = { equationNumbers: { autoNumber: "all" } };MathJax.Hub.Config(_config);
+</script>
+<script type="text/javascript" src="https://cdn.bootcss.com/mathjax/2.7.4/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
+<script>
+  window.Lazyload.js('https://cdn.bootcss.com/mermaid/8.0.0-rc.8/mermaid.min.js', function() {
+    mermaid.initialize({
+      startOnLoad: true
+    });
+    mermaid.init(undefined, '.language-mermaid');
+  });
+</script>
+
+    </div>
+    <script>(function () {
+  var $root = document.getElementsByClassName('root')[0];
+  if (window.hasEvent('touchstart')) {
+    $root.dataset.isTouch = true;
+    document.addEventListener('touchstart', function(){}, false);
+  }
+})();
+</script>
+  </body>
+</html>
+

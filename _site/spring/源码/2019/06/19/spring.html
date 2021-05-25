@@ -1,0 +1,1396 @@
+<!DOCTYPE html><html lang="zh">
+  <head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no"><title>Spring - Tyning Another</title>
+
+<meta name="description" content="Spring源码1.IOC存放对象的容器如何存储容器对象使用key-value结构对象是谁创建？容器对象如何创建？new 工厂 反射的方式Class clazz = Person.class;Constructor ctor = clazz.getConstructor();Object person = cto...">
+<link rel="canonical" href="/spring/%E6%BA%90%E7%A0%81/2019/06/19/spring.html"><link rel="alternate" type="application/rss+xml" title="Tyning Another" href="/feed.xml"><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico">
+
+<meta name="msapplication-TileColor" content="#ffc40d"><meta name="msapplication-config" content="/assets/browserconfig.xml">
+
+<meta name="theme-color" content="#ffffff">
+<!-- end favicons snippet --><link rel="stylesheet" href="/assets/css/main.css"><link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/5.15.1/css/all.css" ><!-- start custom head snippets -->
+
+<!-- end custom head snippets -->
+<script>(function() {
+  window.isArray = function(val) {
+    return Object.prototype.toString.call(val) === '[object Array]';
+  };
+  window.isString = function(val) {
+    return typeof val === 'string';
+  };
+
+  window.hasEvent = function(event) {
+    return 'on'.concat(event) in window.document;
+  };
+
+  window.isOverallScroller = function(node) {
+    return node === document.documentElement || node === document.body || node === window;
+  };
+
+  window.isFormElement = function(node) {
+    var tagName = node.tagName;
+    return tagName === 'INPUT' || tagName === 'SELECT' || tagName === 'TEXTAREA';
+  };
+
+  window.pageLoad = (function () {
+    var loaded = false, cbs = [];
+    window.addEventListener('load', function () {
+      var i;
+      loaded = true;
+      if (cbs.length > 0) {
+        for (i = 0; i < cbs.length; i++) {
+          cbs[i]();
+        }
+      }
+    });
+    return {
+      then: function(cb) {
+        cb && (loaded ? cb() : (cbs.push(cb)));
+      }
+    };
+  })();
+})();
+(function() {
+  window.throttle = function(func, wait) {
+    var args, result, thisArg, timeoutId, lastCalled = 0;
+
+    function trailingCall() {
+      lastCalled = new Date;
+      timeoutId = null;
+      result = func.apply(thisArg, args);
+    }
+    return function() {
+      var now = new Date,
+        remaining = wait - (now - lastCalled);
+
+      args = arguments;
+      thisArg = this;
+
+      if (remaining <= 0) {
+        clearTimeout(timeoutId);
+        timeoutId = null;
+        lastCalled = now;
+        result = func.apply(thisArg, args);
+      } else if (!timeoutId) {
+        timeoutId = setTimeout(trailingCall, remaining);
+      }
+      return result;
+    };
+  };
+})();
+(function() {
+  var Set = (function() {
+    var add = function(item) {
+      var i, data = this._data;
+      for (i = 0; i < data.length; i++) {
+        if (data[i] === item) {
+          return;
+        }
+      }
+      this.size ++;
+      data.push(item);
+      return data;
+    };
+
+    var Set = function(data) {
+      this.size = 0;
+      this._data = [];
+      var i;
+      if (data.length > 0) {
+        for (i = 0; i < data.length; i++) {
+          add.call(this, data[i]);
+        }
+      }
+    };
+    Set.prototype.add = add;
+    Set.prototype.get = function(index) { return this._data[index]; };
+    Set.prototype.has = function(item) {
+      var i, data = this._data;
+      for (i = 0; i < data.length; i++) {
+        if (this.get(i) === item) {
+          return true;
+        }
+      }
+      return false;
+    };
+    Set.prototype.is = function(map) {
+      if (map._data.length !== this._data.length) { return false; }
+      var i, j, flag, tData = this._data, mData = map._data;
+      for (i = 0; i < tData.length; i++) {
+        for (flag = false, j = 0; j < mData.length; j++) {
+          if (tData[i] === mData[j]) {
+            flag = true;
+            break;
+          }
+        }
+        if (!flag) { return false; }
+      }
+      return true;
+    };
+    Set.prototype.values = function() {
+      return this._data;
+    };
+    return Set;
+  })();
+
+  window.Lazyload = (function(doc) {
+    var queue = {js: [], css: []}, sources = {js: {}, css: {}}, context = this;
+    var createNode = function(name, attrs) {
+      var node = doc.createElement(name), attr;
+      for (attr in attrs) {
+        if (attrs.hasOwnProperty(attr)) {
+          node.setAttribute(attr, attrs[attr]);
+        }
+      }
+      return node;
+    };
+    var end = function(type, url) {
+      var s, q, qi, cbs, i, j, cur, val, flag;
+      if (type === 'js' || type ==='css') {
+        s = sources[type], q = queue[type];
+        s[url] = true;
+        for (i = 0; i < q.length; i++) {
+          cur = q[i];
+          if (cur.urls.has(url)) {
+            qi = cur, val = qi.urls.values();
+            qi && (cbs = qi.callbacks);
+            for (flag = true, j = 0; j < val.length; j++) {
+              cur = val[j];
+              if (!s[cur]) {
+                flag = false;
+              }
+            }
+            if (flag && cbs && cbs.length > 0) {
+              for (j = 0; j < cbs.length; j++) {
+                cbs[j].call(context);
+              }
+              qi.load = true;
+            }
+          }
+        }
+      }
+    };
+    var load = function(type, urls, callback) {
+      var s, q, qi, node, i, cur,
+        _urls = typeof urls === 'string' ? new Set([urls]) : new Set(urls), val, url;
+      if (type === 'js' || type ==='css') {
+        s = sources[type], q = queue[type];
+        for (i = 0; i < q.length; i++) {
+          cur = q[i];
+          if (_urls.is(cur.urls)) {
+            qi = cur;
+            break;
+          }
+        }
+        val = _urls.values();
+        if (qi) {
+          callback && (qi.load || qi.callbacks.push(callback));
+          callback && (qi.load && callback());
+        } else {
+          q.push({
+            urls: _urls,
+            callbacks: callback ? [callback] : [],
+            load: false
+          });
+          for (i = 0; i < val.length; i++) {
+            node = null, url = val[i];
+            if (s[url] === undefined) {
+              (type === 'js' ) && (node = createNode('script', { src: url }));
+              (type === 'css') && (node = createNode('link', { rel: 'stylesheet', href: url }));
+              if (node) {
+                node.onload = (function(type, url) {
+                  return function() {
+                    end(type, url);
+                  };
+                })(type, url);
+                (doc.head || doc.body).appendChild(node);
+                s[url] = false;
+              }
+            }
+          }
+        }
+      }
+    };
+    return {
+      js: function(url, callback) {
+        load('js', url, callback);
+      },
+      css: function(url, callback) {
+        load('css', url, callback);
+      }
+    };
+  })(this.document);
+})();
+</script><script>
+  (function() {
+    var TEXT_VARIABLES = {
+      version: '2.2.6',
+      sources: {
+        font_awesome: 'https://cdn.bootcdn.net/ajax/libs/font-awesome/5.15.1/css/all.css',
+        jquery: 'https://cdn.bootcss.com/jquery/3.1.1/jquery.min.js',
+        leancloud_js_sdk: '//cdn.jsdelivr.net/npm/leancloud-storage@3.13.2/dist/av-min.js',
+        chart: 'https://cdn.bootcss.com/Chart.js/2.7.2/Chart.bundle.min.js',
+        gitalk: {
+          js: 'https://cdn.bootcss.com/gitalk/1.2.2/gitalk.min.js',
+          css: 'https://cdn.bootcss.com/gitalk/1.2.2/gitalk.min.css'
+        },
+        valine: 'https://unpkg.com/valine/dist/Valine.min.js',
+        mathjax: 'https://cdn.bootcss.com/mathjax/2.7.4/MathJax.js?config=TeX-MML-AM_CHTML',
+        mermaid: 'https://cdn.bootcss.com/mermaid/8.0.0-rc.8/mermaid.min.js'
+      },
+      site: {
+        toc: {
+          selectors: 'h1,h2,h3'
+        }
+      },
+      paths: {
+        search_js: '/assets/search.js'
+      }
+    };
+    window.TEXT_VARIABLES = TEXT_VARIABLES;
+  })();
+</script>
+</head>
+  <body>
+    <div class="root" data-is-touch="false">
+      <div class="layout--page js-page-root"><div class="page__main js-page-main page__viewport has-aside cell cell--auto">
+
+      <div class="page__main-inner"><div class="page__header d-print-none"><header class="header"><div class="main">
+      <div class="header__title">
+        <div class="header__brand"><svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 width="24px" height="24px" viewBox="0 0 24 24">
+<style type="text/css">
+	.st0{fill:#515151;}
+</style>
+<path class="st0" d="M1.7,22.3c5.7-5.7,11.3-5.7,17,0c3.3-3.3,3.5-5.3,0.8-6c2.7,0.7,3.5-1.1,2.3-5.6s-3.3-5.2-6.3-2.1
+	c3-3,2.3-5.2-2.1-6.3S7,1.8,7.7,4.6C7,1.8,5,2.1,1.7,5.3C7.3,11,7.3,16.7,1.7,22.3"/>
+</svg>
+<a title="No
+" href="/">Tyning Another</a></div><button class="button button--secondary button--circle search-button js-search-toggle"><i class="fas fa-search"></i></button></div><nav class="navigation">
+        <ul><li class="navigation__item"><a href="/">首页</a></li><li class="navigation__item"><a href="/archive.html">归档</a></li><li><button class="button button--secondary button--circle search-button js-search-toggle"><i class="fas fa-search"></i></button></li></ul>
+      </nav></div>
+  </header>
+</div><div class="page__content"><div class ="main"><div class="grid grid--reverse">
+
+              <div class="col-aside d-print-none js-col-aside"><aside class="page__aside js-page-aside"><div class="toc-aside js-toc-root"></div>
+</aside></div>
+
+              <div class="col-main cell cell--auto"><!-- start custom main top snippet -->
+
+<!-- end custom main top snippet -->
+<article itemscope itemtype="http://schema.org/Article"><div class="article__header"><header><h1>Spring</h1></header></div><meta itemprop="headline" content="Spring"><div class="article__info clearfix"><ul class="left-col menu"><li>
+              <a class="button button--secondary button--pill button--sm"
+                href="/archive.html?tag=Spring">Spring</a>
+            </li></ul><ul class="right-col menu"><li><i class="far fa-calendar-alt"></i> <span>2019年 06月19日</span>
+            </li></ul></div><meta itemprop="author" content="tyning.another"/><meta itemprop="datePublished" content="2019-06-19T00:00:00+08:00">
+    <meta itemprop="keywords" content="Spring"><div class="js-article-content"><div class="layout--article"><!-- start custom article top snippet -->
+
+<!-- end custom article top snippet -->
+<div class="article__content" itemprop="articleBody"><h1 id="spring源码">Spring源码</h1>
+
+<p><img src="/assets/images/post/cover2.jpg" alt="image-20210226150948363" /></p>
+
+<p><img src="/assets/images/post/image-20210226150948363.png" alt="image-20210226150948363" /></p>
+
+<h2 id="1ioc">1.IOC</h2>
+
+<p>存放对象的容器</p>
+
+<p>如何存储容器对象使用key-value结构</p>
+
+<p>对象是谁创建？容器</p>
+
+<p>对象如何创建？new 工厂 反射的方式</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nc">Class</span> <span class="n">clazz</span> <span class="o">=</span> <span class="nc">Person</span><span class="o">.</span><span class="na">class</span><span class="o">;</span>
+<span class="nc">Constructor</span> <span class="n">ctor</span> <span class="o">=</span> <span class="n">clazz</span><span class="o">.</span><span class="na">getConstructor</span><span class="o">();</span>
+<span class="nc">Object</span> <span class="n">person</span> <span class="o">=</span> <span class="n">ctor</span><span class="o">.</span><span class="na">newInstance</span><span class="o">();</span>
+</code></pre></div></div>
+
+<p>xml与注解只要是为了解决bean定义信息（beandefine）</p>
+
+<ul>
+  <li>对象默认是单例，可以配置成非单例</li>
+</ul>
+
+<p>名词：</p>
+
+<ul>
+  <li>
+    <p>bean定义信息（BeanDefinition），一个spring的概念</p>
+  </li>
+  <li>
+    <p>读取器（BeanDefinitionReader），一个spring的概念，读取BeanDefinition放到容器中去</p>
+  </li>
+  <li>
+    <p>bean工厂（BeanFactory）</p>
+  </li>
+</ul>
+
+<p>对象的创建的两个概念：</p>
+
+<ul>
+  <li>实例化：最主要的是在堆中开启一块空间，属性有默认值</li>
+  <li>初始化：
+    <ul>
+      <li>属性赋值</li>
+      <li>初始化方法</li>
+    </ul>
+  </li>
+  <li>实例化之后要初始化，才会生成一个完整的对象</li>
+</ul>
+
+<p>postprocessor 后置处理器（增强器）：多xml，没有xml都需要一个公有的值，</p>
+
+<h1 id="spirng的启动过程">Spirng的启动过程</h1>
+
+<ol>
+  <li>obtainFreshBeanFactory()创建BeanFactory(ConfigurableListableBeanFactory类型的对象)
+    <ol>
+      <li>loadBeanDefinitions()方法创建 reader</li>
+    </ol>
+  </li>
+  <li>往BeanFactory中添加东西使用prepareBeanFactory()配置 ClassLoader and post-processors</li>
+  <li>其中invokeBeanFactoryPostProcessors方法是对上边prepareBeanFactory()方法中注入的对象进行处理。这个时候就完成了BeanFactoryPostProcessor过程</li>
+  <li>国际话的一些操作initMessageSource();</li>
+  <li>子类实现来执行这个方法onRefresh();比如springboot</li>
+</ol>
+
+<h1 id="bean的生命周期">Bean的生命周期</h1>
+
+<ol>
+  <li>实现一堆Aware接口（但实现某个Aware接口之后，就意味着可以通过当前bean对象很方便的获取到容器中存在的对象）</li>
+  <li>执行BeanPostProcessor的before方法</li>
+  <li>执行当前对象定义的init方法</li>
+  <li>实例化</li>
+  <li>执行BeanPostProcessor的after方法</li>
+  <li>调用DisposeableBean方法 bean销毁方法</li>
+  <li>调用destory方法</li>
+</ol>
+
+<p>销毁的话是在容器关闭，用户是不能直接销毁对象的</p>
+
+<h1 id="6个主要的接口">6个主要的接口</h1>
+
+<h2 id="1beanfactory">1.BeanFactory</h2>
+
+<p>The root interface for accessing a Spring bean container.</p>
+
+<p>用于访问Spring bean容器的根接口</p>
+
+<p>This is the basic client view of a bean container;</p>
+
+<p>这是bean容器的基本客户端视图</p>
+
+<p>further interfaces such as ListableBeanFactory and org.springframework.beans.factory.config.ConfigurableBeanFactory are available for specific purposes.</p>
+
+<p>还有其他接口，例如{@link ListableBeanFactory}和{@link org.springframework.beans.factory.config.ConfigurableBeanFactory}可用于特定目的。</p>
+
+<p>This interface is implemented by objects that hold a number of bean definitions, each uniquely identified by a String name. Depending on the bean definition, the factory will return either an independent instance of a contained object (the Prototype design pattern), or a single shared instance (a superior alternative to the Singleton design pattern, in which the instance is a singleton in the scope of the factory). Which type of instance will be returned depends on the bean factory configuration: the API is the same. Since Spring 2.0, further scopes are available depending on the concrete application context (e.g. “request” and “session” scopes in a web environment).</p>
+
+<p>该接口由包含多个bean定义的对象实现，每个定义均由String名称唯一标识。根据bean的定义，工厂将返回一个包含对象的独立实例（Prototype设计模式），或者返回一个共享实例（Singleton设计模式的替代方案，其中实例是作用域中的单例）。的工厂）。将返回哪种类型的实例取决于bean工厂的配置：API是相同的。从Spring 2.0开始，取决于具体的应用程序上下文，可以使用更多范围（例如，网络环境中的“ request”和“ session”范围）。</p>
+
+<p>The point of this approach is that the BeanFactory is a central registry of application components, and centralizes configuration of application components (no more do individual objects need to read properties files, for example). See chapters 4 and 11 of “Expert One-on-One J2EE Design and Development” for a discussion of the benefits of this approach.</p>
+
+<p>此方法的重点是BeanFactory是应用程序组件的中央注册表，并集中了应用程序组件的配置（例如，单个对象不再需要读取属性文件）。有关此方法的好处的讨论，请参见“一对一J2EE专家设计和开发”的第4章和第11章。</p>
+
+<p>Note that it is generally better to rely on Dependency Injection (“push” configuration) to configure application objects through setters or constructors, rather than use any form of “pull” configuration like a BeanFactory lookup. Spring’s Dependency Injection functionality is implemented using this BeanFactory interface and its subinterfaces.</p>
+
+<p>请注意，通常最好依赖于依赖注入（“ push”配置）通过设置器或构造函数配置应用程序对象，而不是使用任何形式的“ pull”配置（例如BeanFactory查找）。 Spring的Dependency Injection功能是使用此BeanFactory接口及其子接口实现的。</p>
+
+<p>Normally a BeanFactory will load bean definitions stored in a configuration source (such as an XML document), and use the org.springframework.beans package to configure the beans. However, an implementation could simply return Java objects it creates as necessary directly in Java code. There are no constraints on how the definitions could be stored: LDAP, RDBMS, XML, properties file, etc. Implementations are encouraged to support references amongst beans (Dependency Injection).</p>
+
+<p>通常，BeanFactory会加载存储在配置源（例如XML文档）中的Bean定义，并使用{@code org.springframework.beans}包来配置Bean。但是，实现可以根据需要直接在Java代码中直接返回它创建的Java对象。定义的存储方式没有任何限制：LDAP，RDBMS，XML，属性文件等。鼓励实现以支持Bean之间的引用（Dependency Injection）。</p>
+
+<p>In contrast to the methods in ListableBeanFactory, all of the operations in this interface will also check parent factories if this is a HierarchicalBeanFactory. If a bean is not found in this factory instance, the immediate parent factory will be asked. Beans in this factory instance are supposed to override beans of the same name in any parent factory.</p>
+
+<p>与{@link ListableBeanFactory}中的方法相比，此接口中的所有操作还将检查父工厂是否为{@link HierarchicalBeanFactory}。如果在此工厂实例中未找到bean，则将询问直接的父工厂。该工厂实例中的Bean应该覆盖任何父工厂中同名的Bean。</p>
+
+<p>Bean factory implementations should support the standard bean lifecycle interfaces as far as possible. The full set of initialization methods and their standard order is:</p>
+
+<p>Bean工厂实现应尽可能支持标准Bean生命周期接口。全套初始化方法及其标准顺序为：</p>
+
+<ol>
+  <li>BeanNameAware’s setBeanName</li>
+  <li>BeanClassLoaderAware’s setBeanClassLoader</li>
+  <li>BeanFactoryAware’s setBeanFactory</li>
+  <li>EnvironmentAware’s setEnvironment</li>
+  <li>EmbeddedValueResolverAware’s setEmbeddedValueResolver</li>
+  <li>ResourceLoaderAware’s setResourceLoader (only applicable when running in an application context)</li>
+  <li>ApplicationEventPublisherAware’s setApplicationEventPublisher (only applicable when running in an application context)</li>
+  <li>MessageSourceAware’s setMessageSource (only applicable when running in an application context)</li>
+  <li>ApplicationContextAware’s setApplicationContext (only applicable when running in an application context)</li>
+  <li>ServletContextAware’s setServletContext (only applicable when running in a web application context)</li>
+  <li>postProcessBeforeInitialization methods of BeanPostProcessors</li>
+  <li>InitializingBean’s afterPropertiesSet</li>
+  <li>a custom init-method definition</li>
+  <li>postProcessAfterInitialization methods of BeanPostProcessors</li>
+</ol>
+
+<p>On shutdown of a bean factory, the following lifecycle methods apply:</p>
+
+<p>在关闭bean工厂的过程中，以下生命周期方法适用：</p>
+
+<ol>
+  <li>postProcessBeforeDestruction methods of DestructionAwareBeanPostProcessors</li>
+  <li>DisposableBean’s destroy</li>
+  <li>a custom destroy-method definition</li>
+</ol>
+
+<h2 id="2beanpostprocessor">2.BeanPostProcessor</h2>
+
+<p>Factory hook that allows for custom modification of new bean instances — for example, checking for marker interfaces or wrapping beans with proxies.</p>
+
+<p>工厂挂钩允许对新bean实例进行自定义修改-例如，检查标记接口或使用代理包装bean。</p>
+
+<p>Typically, post-processors that populate beans via marker interfaces or the like will implement postProcessBeforeInitialization, while post-processors that wrap beans with proxies will normally implement postProcessAfterInitialization.</p>
+
+<p>通常，通过标记接口等填充bean的后处理器将实现postProcessBeforeInitialization，而使用代理包装bean的后处理器通常将实现postProcessAfterInitialization。</p>
+
+<p><strong>Registration</strong></p>
+
+<p>登记注册</p>
+
+<p>An ApplicationContext can autodetect BeanPostProcessor beans in its bean definitions and apply those post-processors to any beans subsequently created. A plain BeanFactory allows for programmatic registration of post-processors, applying them to all beans created through the bean factory.</p>
+
+<p>{@code ApplicationContext}可以在其bean定义中自动检测{@code BeanPostProcessor} bean，并将这些后处理器应用于随后创建的任何bean。普通的{@code BeanFactory}允许以编程方式注册</p>
+
+<p>Ordering</p>
+
+<p>排序</p>
+
+<p>BeanPostProcessor beans that are autodetected in an ApplicationContext will be ordered according to org.springframework.core.PriorityOrdered and org.springframework.core.Ordered semantics. In contrast, BeanPostProcessor beans that are registered programmatically with a BeanFactory will be applied in the order of registration; any ordering semantics expressed through implementing the PriorityOrdered or Ordered interface will be ignored for programmatically registered post-processors. Furthermore, the @Order annotation is not taken into account for BeanPostProcessor beans.</p>
+
+<p>在{@code ApplicationContext}中自动检测到的{@code BeanPostProcessor} bean将根据{@link org.springframework.core.PriorityOrdered}和{@link org.springframework.core.Ordered}语义进行排序。相反，将以注册顺序应用通过{@code BeanFactory}以编程方式注册的{@code BeanPostProcessor} bean；以编程方式注册的后处理器将忽略通过实现{@code PriorityOrdered}或{@code Ordered}接口表示的任何排序语义。此外，{@ code BeanPostProcessor} bean不考虑{@link org.springframework.core.annotation.Order @Order}批注。</p>
+
+<h2 id="3environment">3.Environment</h2>
+
+<p>Interface representing the environment in which the current application is running. Models two key aspects of the application environment: profiles and properties. Methods related to property access are exposed via the PropertyResolver superinterface.</p>
+
+<p>表示当前应用程序正在其中运行的环境的接口。为应用程序环境的两个关键方面建模：<em> profiles <em>和<em> properties <em>。与属性访问有关的方法是通过{@link PropertyResolver}超级接口公开的。</em></em></em></em></p>
+
+<p>A profile is a named, logical group of bean definitions to be registered with the container only if the given profile is active. Beans may be assigned to a profile whether defined in XML or via annotations; see the spring-beans 3.1 schema or the @Profile annotation for syntax details. The role of the Environment object with relation to profiles is in determining which profiles (if any) are currently active, and which profiles (if any) should be active by default.</p>
+
+<p><em>配置文件<em>是命名的逻辑定义的Bean定义组，仅当给定的配置文件为<em> active <em>时才向容器注册。可以将Bean分配给概要文件，无论是XML定义还是通过注释定义。有关语法的详细信息，请参见spring-beans 3.1模式或{@link org.springframework.context.annotation.Profile @Profile}批注。 {@code Environment}对象与配置文件相关的作用是确定哪些配置文件（如果有的话）当前{@linkplain getActiveProfiles有效}，以及哪些配置文件（如果有的话）应为{@linkplain getDefaultProfiles默认为活动状态}。</em></em></em></em></p>
+
+<p>Properties play an important role in almost all applications, and may originate from a variety of sources: properties files, JVM system properties, system environment variables, JNDI, servlet context parameters, ad-hoc Properties objects, Maps, and so on. The role of the environment object with relation to properties is to provide the user with a convenient service interface for configuring property sources and resolving properties from them.</p>
+
+<p><em> Properties <em>在几乎所有应用程序中都起着重要作用，并且可能源自多种来源：属性文件，JVM系统属性，系统环境变量，JNDI，Servlet上下文参数，临时属性对象，地图，等等。环境对象与属性有关的作用是为用户提供方便的服务界面，用于配置属性源并从中解析属性。</em></em></p>
+
+<p>Beans managed within an ApplicationContext may register to be EnvironmentAware or @Inject the Environment in order to query profile state or resolve properties directly.</p>
+
+<p>在{@code ApplicationContext}中管理的Bean可以注册为{@link org.springframework.context.EnvironmentAware EnvironmentAware}或{@code @Inject} {@code Environment}，以便查询概要文件状态或直接解析属性。</p>
+
+<p>In most cases, however, application-level beans should not need to interact with the Environment directly but instead may have to have ${…} property values replaced by a property placeholder configurer such as PropertySourcesPlaceholderConfigurer, which itself is EnvironmentAware and as of Spring 3.1 is registered by default when using <context:property-placeholder></context:property-placeholder>.</p>
+
+<p>但是，在大多数情况下，应用程序级Bean无需直接与{@code Environment}进行交互，而可能必须将{@code {…}}属性值替换为诸如{@链接org.springframework.context.support.PropertySourcesPlaceholderConfigurer PropertySourcesPlaceholderConfigurer}本身就是{@code EnvironmentAware}，从Spring 3.1开始，默认情况下使用{@code &lt;context：property-placeholder&gt;}注册。</p>
+
+<p>Configuration of the environment object must be done through the ConfigurableEnvironment interface, returned from all AbstractApplicationContext subclass getEnvironment() methods. See ConfigurableEnvironment Javadoc for usage examples demonstrating manipulation of property sources prior to application context refresh().</p>
+
+<p>必须通过从所有{@code AbstractApplicationContext}子类{@code getEnvironment（）}方法返回的{@code ConfigurableEnvironment}接口完成环境对象的配置。请参阅{@link ConfigurableEnvironment} Javadoc以获取使用示例，这些示例演示了在应用程序上下文{@code refresh（）}之前对属性源进行的操作。</p>
+
+<h2 id="4factorybean">4.FactoryBean</h2>
+
+<p>Interface to be implemented by objects used within a BeanFactory which are themselves factories for individual objects. If a bean implements this interface, it is used as a factory for an object to expose, not directly as a bean instance that will be exposed itself.</p>
+
+<p>由{@link BeanFactory}中使用的对象实现的接口，这些对象本身就是单个对象的工厂。如果bean实现此接口，则它将用作对象公开的工厂，而不是直接用作将自身公开的bean实例。</p>
+
+<p>NB: A bean that implements this interface cannot be used as a normal bean. A FactoryBean is defined in a bean style, but the object exposed for bean references (getObject()) is always the object that it creates.</p>
+
+<p>注意：实现此接口的bean不能用作普通bean。<b>  FactoryBean是用bean样式定义的，但是为bean引用公开的对象（getObject（）)始终是它创建的对象。</b></p>
+
+<p>FactoryBeans can support singletons and prototypes, and can either create objects lazily on demand or eagerly on startup. The SmartFactoryBean interface allows for exposing more fine-grained behavioral metadata.</p>
+
+<p>FactoryBeans可以支持单例和原型，并且可以按需延迟创建对象，也可以在启动时急于创建对象。 {@link SmartFactoryBean}接口允许公开更细粒度的行为元数据</p>
+
+<p>This interface is heavily used within the framework itself, for example for the AOP org.springframework.aop.framework.ProxyFactoryBean or the org.springframework.jndi.JndiObjectFactoryBean. It can be used for custom components as well; however, this is only common for infrastructure code.</p>
+
+<p>此接口在框架本身中大量使用，例如用于AOP {@link org.springframework.aop.framework.ProxyFactoryBean}或{@link org.springframework.jndi.JndiObjectFactoryBean}。它也可以用于自定义组件。但是，这仅在基础结构代码中很常见。</p>
+
+<p>FactoryBean is a programmatic contract. Implementations are not supposed to rely on annotation-driven injection or other reflective facilities. getObjectType() getObject() invocations may arrive early in the bootstrap process, even ahead of any post-processor setup. If you need access to other beans, implement BeanFactoryAware and obtain them programmatically.</p>
+
+<p>{@code FactoryBean}是程序性合同。实现不应依赖于注释驱动的注入或其他反射性工具。<b> {@link getObjectType（）} {@link getObject（）}调用可能会在引导过程的早期到达，即使在任何后处理器设置之前也是如此。 。如果需要访问其他bean，请实现{@link BeanFactoryAware}并以编程方式获取它们。</b></p>
+
+<p>The container is only responsible for managing the lifecycle of the FactoryBean instance, not the lifecycle of the objects created by the FactoryBean. Therefore, a destroy method on an exposed bean object (such as java.io.Closeable.close() will not be called automatically. Instead, a FactoryBean should implement DisposableBean and delegate any such close call to the underlying object.</p>
+
+<p>容器仅负责管理FactoryBean实例的生命周期，而不负责管理FactoryBean创建的对象的生命周期。因此，在暴露的bean对象上的destroy方法(例如{@link java.io.Closeableclose（）)将<i>不<i>被自动调用。</i></i></p>
+
+<p>Finally, FactoryBean objects participate in the containing BeanFactory’s synchronization of bean creation. There is usually no need for internal synchronization other than for purposes of lazy initialization within the FactoryBean itself (or the like).</p>
+
+<p>最后，FactoryBean对象参与包含BeanFactory的Bean创建同步。除了出于FactoryBean自身（或类似方式）内部的延迟初始化的目的之外，通常不需要内部同步。</p>
+
+<h2 id="5beanfactorypostprocessor">5.BeanFactoryPostProcessor</h2>
+
+<p>Factory hook that allows for custom modification of an application context’s bean definitions, adapting the bean property values of the context’s underlying bean factory.</p>
+
+<p>工厂挂钩允许对应用程序上下文的Bean定义进行自定义修改，以适应上下文基础Bean工厂的Bean属性值。</p>
+
+<p>Useful for custom config files targeted at system administrators that override bean properties configured in the application context. See PropertyResourceConfigurer and its concrete implementations for out-of-the-box solutions that address such configuration needs.</p>
+
+<p>对于针对系统管理员的自定义配置文件很有用，这些文件覆盖了在应用程序上下文中配置的Bean属性。请参阅{@link PropertyResourceConfigurer}及其具体实现，以了解解决此类配置需求的即用型解决方案。</p>
+
+<p>A BeanFactoryPostProcessor may interact with and modify bean definitions, but never bean instances. Doing so may cause premature bean instantiation, violating the container and causing unintended side-effects. If bean instance interaction is required, consider implementing BeanPostProcessor instead.</p>
+
+<p>{@code BeanFactoryPostProcessor}可以与Bean定义进行交互并对其进行修改，但不能与Bean实例进行交互。这样做可能会导致bean实例化过早，从而违反了容器并造成了意想不到的副作用。如果需要bean实例交互，请考虑改为实现{@link BeanPostProcessor}。</p>
+
+<p>Registration
+An ApplicationContext auto-detects BeanFactoryPostProcessor beans in its bean definitions and applies them before any other beans get created. A BeanFactoryPostProcessor may also be registered programmatically with a ConfigurableApplicationContext.</p>
+
+<p>{@code ApplicationContext}在其bean定义中自动检测{@code BeanFactoryPostProcessor} bean，并在创建任何其他bean之前应用它们。 {@code BeanFactoryPostProcessor}也可以通过编程方式向{@code ConfigurableApplicationContext}注册</p>
+
+<p>Ordering
+BeanFactoryPostProcessor beans that are autodetected in an ApplicationContext will be ordered according to org.springframework.core.PriorityOrdered and org.springframework.core.Ordered semantics. In contrast, BeanFactoryPostProcessor beans that are registered programmatically with a ConfigurableApplicationContext will be applied in the order of registration; any ordering semantics expressed through implementing the PriorityOrdered or Ordered interface will be ignored for programmatically registered post-processors. Furthermore, the @Order annotation is not taken into account for BeanFactoryPostProcessor beans.</p>
+
+<p>在{@code ApplicationContext}中自动检测到的{@code BeanFactoryPostProcessor} bean将根据{@link org.springframework.core.PriorityOrdered}和{@link org.springframework.core.Ordered}语义进行排序。相反，将以注册顺序应用通过{@code ConfigurableApplicationContext}以编程方式注册的{@code BeanFactoryPostProcessor} bean。以编程方式注册的后处理器将忽略通过实现{@code PriorityOrdered}或{@code Ordered}接口表示的任何排序语义。此外，{@ code BeanFactoryPostProcessor} bean不考虑{@link org.springframework.core.annotation.Order @Order}批注。</p>
+
+<h2 id="6beandefinitionreader">6.BeanDefinitionReader</h2>
+
+<p>Simple interface for bean definition readers.</p>
+
+<p>Bean定义阅读器的简单界面。</p>
+
+<p>Specifies load methods with Resource and String location parameters.</p>
+
+<p>指定带有“资源”和“字符串”位置参数的加载方法。</p>
+
+<p>Concrete bean definition readers can of course add additional load and register methods for bean definitions, specific to their bean definition format.</p>
+
+<p>当然，具体的bean定义阅读器可以为bean定义添加特定于其bean定义格式的附加加载和注册方法。</p>
+
+<p>Note that a bean definition reader does not have to implement this interface. It only serves as suggestion for bean definition readers that want to follow standard naming conventions.</p>
+
+<p>注意，bean定义阅读器不必实现此接口。它仅对希望遵循标准命名约定的Bean定义读者提供建议。</p>
+
+<h1 id="循环依赖的问题">循环依赖的问题</h1>
+
+<ul>
+  <li>什么是循环依赖</li>
+  <li>spring中如何解决循环依赖问题</li>
+  <li>为什么要使用三级缓存解决循环依赖问题？一级缓存行不行？二级缓存行不行？</li>
+</ul>
+
+<h2 id="解答循环依赖">解答循环依赖</h2>
+
+<ol>
+  <li>基本逻辑:如果使用构造器的方法创建对象的时候必须创建依赖的其他类型对象，可以使用无参构造器创建对象然后使用set方法注入依赖的bean对象。</li>
+  <li>解决依赖的主要类DefaultSingletonBeanRegistry
+    <ol>
+      <li></li>
+    </ol>
+  </li>
+  <li></li>
+</ol>
+
+<p>下边所说的前提：创建的所有对象都是单例对象</p>
+
+<p>循环依赖问题：</p>
+
+<p>如果是构造器方式没有办法解决</p>
+
+<p>如果是setter方式可以使用三级缓存方式解决</p>
+
+<p>三级缓存就是三个map，区别是在他们的value类型</p>
+
+<p>其中三级缓存singletonFactories</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">@FunctionalInterface</span>
+<span class="kd">public</span> <span class="kd">interface</span> <span class="nc">ObjectFactory</span><span class="o">&lt;</span><span class="no">T</span><span class="o">&gt;</span> <span class="o">{</span>
+
+	<span class="cm">/**
+	 * Return an instance (possibly shared or independent)
+	 * of the object managed by this factory.
+	 * @return the resulting instance
+	 * @throws BeansException in case of creation errors
+	 */</span>
+	<span class="no">T</span> <span class="nf">getObject</span><span class="o">()</span> <span class="kd">throws</span> <span class="nc">BeansException</span><span class="o">;</span>
+
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>实际执行匿名内部类</p>
+
+<p>提前暴露对象</p>
+
+<p><img src="/assets/images/post/image-20210311202715679.png" alt="image-20210311202715679" /></p>
+
+<p>会有两个lambda表达式参数传递</p>
+
+<p>RuntimeBeanReference 运行时的应用</p>
+
+<p>从一级缓存 二级缓存 三级缓存</p>
+
+<h3 id="为什么非要用三级缓存二级缓存行不行以及行不行">为什么非要用三级缓存？二级缓存行不行？以及行不行？</h3>
+
+<p>一级缓存中会放置完整的对象或者非完整对象，如果在操作的时候恰巧获取到非完全对象怎么办？</p>
+
+<p>一级缓存放完整对象，二级缓存放非完整对象，</p>
+
+<h3 id="在创建代理对象的时候需不需要提前创建出属性是默认值的普通对象">在创建代理对象的时候，需不需要提前创建出属性是默认值的普通对象？</h3>
+
+<p>一定会创建出普通对象</p>
+
+<p>当需要创建代理对象的时候，需要执行一个lambda表达式来创建代理类，如果没有三级缓存的话，就有可能有一种情况，刚开始县创建出普通对象，然后被调用了，后续又需要代理对象，此时生成，那么最终使用的效果是有些使用普通对象有些使用代理对象</p>
+
+<p><strong>如果没有aop的实现的话，二级缓存就可以了。三级缓存可以解决aop的代理类问题</strong></p>
+
+<h2 id="6aop的底层实现">6.AOP的底层实现</h2>
+
+<h1 id="refresh方法的实现">refresh方法的实现</h1>
+
+<ol>
+  <li>
+    <p>关键方法ConfigurableListableBeanFactory beanFactory = obtainFreshBeanFactory();</p>
+
+    <p>做了两件事情:读取xml文件(获取非xml的其他的文件或者注解的配置)中的配置;创建BeanFactory</p>
+
+    <p>过程：</p>
+
+    <ol>
+      <li>
+        <p>首先调用refreshBeanFactory();检测是否已经有beanFactory如果有就销毁beanFactory，然后就使用DefaultListableBeanFactory beanFactory = createBeanFactory();创建BeanFactory是DefaultListableBeanFactory对象。这个对象就是<strong>容器</strong>。</p>
+      </li>
+      <li>
+        <p>然后就是给beanFactory对象添加个性化定制的参数customizeBeanFactory(beanFactory);</p>
+      </li>
+      <li>
+        <p>接下来是重点loadBeanDefinitions(beanFactory);这个方法主要是加载xml或者其他方式写的bean定义的配置数据。</p>
+
+        <ol>
+          <li>
+            <p>先创建一个BeanDefinitionReader对象</p>
+          </li>
+          <li>
+            <p>设置一些配置</p>
+
+            <div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">beanDefinitionReader</span><span class="o">.</span><span class="na">setEnvironment</span><span class="o">(</span><span class="k">this</span><span class="o">.</span><span class="na">getEnvironment</span><span class="o">());</span>
+<span class="n">beanDefinitionReader</span><span class="o">.</span><span class="na">setResourceLoader</span><span class="o">(</span><span class="k">this</span><span class="o">);</span>
+<span class="n">beanDefinitionReader</span><span class="o">.</span><span class="na">setEntityResolver</span><span class="o">(</span><span class="k">new</span> <span class="nc">ResourceEntityResolver</span><span class="o">(</span><span class="k">this</span><span class="o">));</span>
+<span class="c1">//this 是指ApplicationContext对象</span>
+</code></pre></div>            </div>
+          </li>
+          <li>
+            <p>然后使用loadBeanDefinitions(beanDefinitionReader)方法加载bean信息。</p>
+
+            <p>通过String[] configLocations = getConfigLocations()获取bean的配置，如果是xml文件的话就是XML文件名字。</p>
+          </li>
+          <li>
+            <p>然后处理加载出来的bean的配置的信息。</p>
+
+            <div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">//以下方法，依次在方法体内调用下一个方法</span>
+<span class="kt">int</span> <span class="nf">loadBeanDefinitions</span><span class="o">(</span><span class="nc">String</span><span class="o">...</span> <span class="n">locations</span><span class="o">)</span>
+<span class="kt">int</span> <span class="nf">loadBeanDefinitions</span><span class="o">(</span><span class="nc">String</span> <span class="n">location</span><span class="o">)</span>
+<span class="kt">int</span> <span class="nf">loadBeanDefinitions</span><span class="o">(</span><span class="nc">String</span> <span class="n">location</span><span class="o">,</span> <span class="nc">Set</span><span class="o">&lt;</span><span class="nc">Resource</span><span class="o">&gt;</span> <span class="n">actualResources</span><span class="o">)</span>
+<span class="kt">int</span> <span class="nf">loadBeanDefinitions</span><span class="o">(</span><span class="nc">Resource</span><span class="o">...</span> <span class="n">resources</span><span class="o">)</span>
+<span class="kt">int</span> <span class="nf">loadBeanDefinitions</span><span class="o">(</span><span class="nc">Resource</span> <span class="n">resource</span><span class="o">)</span>
+<span class="kt">int</span> <span class="nf">loadBeanDefinitions</span><span class="o">(</span><span class="nc">EncodedResource</span> <span class="n">encodedResource</span><span class="o">)</span>
+</code></pre></div>            </div>
+
+            <p>其中int loadBeanDefinitions(EncodedResource encodedResource)这个方法中会将encodedResource的IO流获取到然后调用doLoadBeanDefinitions(inputSource, encodedResource.getResource())方法来加载配置信息。</p>
+          </li>
+          <li>
+            <p>介绍doLoadBeanDefinitions(inputSource, encodedResource.getResource())方法</p>
+
+            <p>我做实现用的xml文件来配置bean。所以这个地方就是从xml中获取bean信息的。Document doc = doLoadDocument(inputSource, resource)就是获取document对象然后交给registerBeanDefinitions(doc, resource)方法做加载最后存放在XmlBeanDefinitionReader中的中的属性BeanFactory的beanDefinitionMap中这个map是bean的名字和BeanDefinition对象。</p>
+          </li>
+        </ol>
+      </li>
+    </ol>
+  </li>
+  <li>
+    <p>关键方法prepareBeanFactory(beanFactory);</p>
+
+    <ol>
+      <li>Spel表达式处理组件加载beanFactory.setBeanExpressionResolver(new StandardBeanExpressionResolver(beanFactory.getBeanClassLoader()));</li>
+      <li>Bean修改组件加载beanFactory.addPropertyEditorRegistrar(new ResourceEditorRegistrar(this, getEnvironment()));</li>
+      <li>BeanPostProcessor加载beanFactory.addBeanPostProcessor(new ApplicationContextAwareProcessor(this));beanFactory.addBeanPostProcessor(new ApplicationListenerDetector(this));</li>
+    </ol>
+  </li>
+  <li>
+    <p>关键方法invokeBeanFactoryPostProcessors(beanFactory)这个方法就是处理上几步注册的BeanFactoryPostProcessor的，<strong>这个地方可以扩展，自定义一个BeanFactoryPostProcessor（自定义的类可以实现void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException;方法，这个方法还能获取到beanFactory，并做修改或者是一些其他的操作。</strong></p>
+
+    <ol>
+      <li>关键代码PostProcessorRegistrationDelegate.invokeBeanFactoryPostProcessors(beanFactory, getBeanFactoryPostProcessors());中的PostProcessorRegistrationDelegate.invokeBeanFactoryPostProcessors方法的实现
+        <ol>
+          <li></li>
+        </ol>
+      </li>
+      <li></li>
+    </ol>
+  </li>
+  <li>
+    <p>关键方法registerBeanPostProcessors(beanFactory);这个方法是加载BeanPostProcessor的。处理逻辑大致与invokeBeanFactoryPostProcessors处理BeanFactoryPostProcessor的获取processor对象逻辑基本一致，获取之后就加载到beanFactory中然后在初始化bean的时候才会执行这些方法。</p>
+  </li>
+  <li></li>
+</ol>
+
+</div><div class="d-print-none"><footer class="article__footer"><meta itemprop="dateModified" content="2019-06-19T00:00:00+08:00"><!-- start custom article footer snippet -->
+
+<!-- end custom article footer snippet -->
+</footer>
+<div class="article__section-navigator clearfix"><div class="previous"><span>上篇</span><a href="/springcloud---/2019/06/19/springcloud.html">SpringCloud</a></div><div class="next"><span>下篇</span><a href="/2019/06/19/zookeeper.html">目录</a></div></div></div>
+
+</div>
+
+<script>(function() {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    $(function() {
+      var $this ,$scroll;
+      var $articleContent = $('.js-article-content');
+      var hasSidebar = $('.js-page-root').hasClass('layout--page--sidebar');
+      var scroll = hasSidebar ? '.js-page-main' : 'html, body';
+      $scroll = $(scroll);
+
+      $articleContent.find('.highlight').each(function() {
+        $this = $(this);
+        $this.attr('data-lang', $this.find('code').attr('data-lang'));
+      });
+      $articleContent.find('h1[id], h2[id], h3[id], h4[id], h5[id], h6[id]').each(function() {
+        $this = $(this);
+        $this.append($('<a class="anchor d-print-none" aria-hidden="true"></a>').html('<i class="fas fa-anchor"></i>'));
+      });
+      $articleContent.on('click', '.anchor', function() {
+        $scroll.scrollToAnchor('#' + $(this).parent().attr('id'), 400);
+      });
+    });
+  });
+})();
+</script>
+</div><section class="page__comments d-print-none"></section></article><!-- start custom main bottom snippet -->
+
+<!-- end custom main bottom snippet -->
+</div>
+            </div></div></div><div class="page__footer d-print-none">
+<footer class="footer py-4 js-page-footer">
+  <div class="main"><div itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="tyning.another"><meta itemprop="url" content="/"><div class="footer__author-links"><div class="author-links">
+  <ul class="menu menu--nowrap menu--inline"></ul>
+</div>
+</div>
+    </div><div class="site-info mt-2">
+      <div><!-- © Tyning Another 2021. -->
+      </div>
+    </div>
+  </div>
+</footer>
+</div></div>
+    </div><script>(function() {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    var $body = $('body'), $window = $(window);
+    var $pageRoot = $('.js-page-root'), $pageMain = $('.js-page-main');
+    var activeCount = 0;
+    function modal(options) {
+      var $root = this, visible, onChange, hideWhenWindowScroll = false;
+      var scrollTop;
+      function setOptions(options) {
+        var _options = options || {};
+        visible = _options.initialVisible === undefined ? false : show;
+        onChange = _options.onChange;
+        hideWhenWindowScroll = _options.hideWhenWindowScroll;
+      }
+      function init() {
+        setState(visible);
+      }
+      function setState(isShow) {
+        if (isShow === visible) {
+          return;
+        }
+        visible = isShow;
+        if (visible) {
+          activeCount++;
+          scrollTop = $(window).scrollTop() || $pageMain.scrollTop();
+          $root.addClass('modal--show');
+          $pageMain.scrollTop(scrollTop);
+          activeCount === 1 && ($pageRoot.addClass('show-modal'), $body.addClass('of-hidden'));
+          hideWhenWindowScroll && window.hasEvent('touchstart') && $window.on('scroll', hide);
+          $window.on('keyup', handleKeyup);
+        } else {
+          activeCount > 0 && activeCount--;
+          $root.removeClass('modal--show');
+          $window.scrollTop(scrollTop);
+          activeCount === 0 && ($pageRoot.removeClass('show-modal'), $body.removeClass('of-hidden'));
+          hideWhenWindowScroll && window.hasEvent('touchstart') && $window.off('scroll', hide);
+          $window.off('keyup', handleKeyup);
+        }
+        onChange && onChange(visible);
+      }
+      function show() {
+        setState(true);
+      }
+      function hide() {
+        setState(false);
+      }
+      function handleKeyup(e) {
+        // Char Code: 27  ESC
+        if (e.which ===  27) {
+          hide();
+        }
+      }
+      setOptions(options);
+      init();
+      return {
+        show: show,
+        hide: hide,
+        $el: $root
+      };
+    }
+    $.fn.modal = modal;
+  });
+})();
+</script><div class="modal modal--overflow page__search-modal d-print-none js-page-search-modal"><script>
+(function () {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    // search panel
+    var search = (window.search || (window.search = {}));
+    var useDefaultSearchBox = window.useDefaultSearchBox === undefined ?
+      true : window.useDefaultSearchBox ;
+
+    var $searchModal = $('.js-page-search-modal');
+    var $searchToggle = $('.js-search-toggle');
+    var searchModal = $searchModal.modal({ onChange: handleModalChange, hideWhenWindowScroll: true });
+    var modalVisible = false;
+    search.searchModal = searchModal;
+
+    var $searchBox = null;
+    var $searchInput = null;
+    var $searchClear = null;
+
+    function getModalVisible() {
+      return modalVisible;
+    }
+    search.getModalVisible = getModalVisible;
+
+    function handleModalChange(visible) {
+      modalVisible = visible;
+      if (visible) {
+        search.onShow && search.onShow();
+        useDefaultSearchBox && $searchInput[0] && $searchInput[0].focus();
+      } else {
+        search.onShow && search.onHide();
+        useDefaultSearchBox && $searchInput[0] && $searchInput[0].blur();
+        setTimeout(function() {
+          useDefaultSearchBox && ($searchInput.val(''), $searchBox.removeClass('not-empty'));
+          search.clear && search.clear();
+          window.pageAsideAffix && window.pageAsideAffix.refresh();
+        }, 400);
+      }
+    }
+
+    $searchToggle.on('click', function() {
+      modalVisible ? searchModal.hide() : searchModal.show();
+    });
+    // Char Code: 83  S, 191 /
+    $(window).on('keyup', function(e) {
+      if (!modalVisible && !window.isFormElement(e.target || e.srcElement) && (e.which === 83 || e.which === 191)) {
+        modalVisible || searchModal.show();
+      }
+    });
+
+    if (useDefaultSearchBox) {
+      $searchBox = $('.js-search-box');
+      $searchInput = $searchBox.children('input');
+      $searchClear = $searchBox.children('.js-icon-clear');
+      search.getSearchInput = function() {
+        return $searchInput.get(0);
+      };
+      search.getVal = function() {
+        return $searchInput.val();
+      };
+      search.setVal = function(val) {
+        $searchInput.val(val);
+      };
+
+      $searchInput.on('focus', function() {
+        $(this).addClass('focus');
+      });
+      $searchInput.on('blur', function() {
+        $(this).removeClass('focus');
+      });
+      $searchInput.on('input', window.throttle(function() {
+        var val = $(this).val();
+        if (val === '' || typeof val !== 'string') {
+          search.clear && search.clear();
+        } else {
+          $searchBox.addClass('not-empty');
+          search.onInputNotEmpty && search.onInputNotEmpty(val);
+        }
+      }, 400));
+      $searchClear.on('click', function() {
+        $searchInput.val(''); $searchBox.removeClass('not-empty');
+        search.clear && search.clear();
+      });
+    }
+  });
+})();
+</script><div class="search search--dark">
+  <div class="main">
+    <div class="search__header">搜索</div>
+    <div class="search-bar">
+      <div class="search-box js-search-box">
+        <div class="search-box__icon-search"><i class="fas fa-search"></i></div>
+        <input type="text" />
+        <div class="search-box__icon-clear js-icon-clear">
+          <a><i class="fas fa-times"></i></a>
+        </div>
+      </div>
+      <button class="button button--theme-dark button--pill search__cancel js-search-toggle">
+        取消</button>
+    </div>
+    <div class="search-result js-search-result"></div>
+  </div>
+</div>
+<script>var SOURCES = window.TEXT_VARIABLES.sources;
+var PAHTS = window.TEXT_VARIABLES.paths;
+window.Lazyload.js([SOURCES.jquery, PAHTS.search_js], function() {
+  var search = (window.search || (window.search = {}));
+  var searchData = window.TEXT_SEARCH_DATA || {};
+
+  function memorize(f) {
+    var cache = {};
+    return function () {
+      var key = Array.prototype.join.call(arguments, ',');
+      if (key in cache) return cache[key];
+      else return cache[key] = f.apply(this, arguments);
+    };
+  }
+
+  /// search
+  function searchByQuery(query) {
+    var i, j, key, keys, cur, _title, result = {};
+    keys = Object.keys(searchData);
+    for (i = 0; i < keys.length; i++) {
+      key = keys[i];
+      for (j = 0; j < searchData[key].length; j++) {
+        cur = searchData[key][j], _title = cur.title;
+        if ((result[key] === undefined || result[key] && result[key].length < 4 )
+          && _title.toLowerCase().indexOf(query.toLowerCase()) >= 0) {
+          if (result[key] === undefined) {
+            result[key] = [];
+          }
+          result[key].push(cur);
+        }
+      }
+    }
+    return result;
+  }
+
+  var renderHeader = memorize(function(header) {
+    return $('<p class="search-result__header">' + header + '</p>');
+  });
+
+  var renderItem = function(index, title, url) {
+    return $('<li class="search-result__item" data-index="' + index + '"><a class="button" href="' + url + '">' + title + '</a></li>');
+  };
+
+  function render(data) {
+    if (!data) { return null; }
+    var $root = $('<ul></ul>'), i, j, key, keys, cur, itemIndex = 0;
+    keys = Object.keys(data);
+    for (i = 0; i < keys.length; i++) {
+      key = keys[i];
+      $root.append(renderHeader(key));
+      for (j = 0; j < data[key].length; j++) {
+        cur = data[key][j];
+        $root.append(renderItem(itemIndex++, cur.title, cur.url));
+      }
+    }
+    return $root;
+  }
+
+  // search box
+  var $result = $('.js-search-result'), $resultItems;
+  var lastActiveIndex, activeIndex;
+
+  function clear() {
+    $result.html(null);
+    $resultItems = $('.search-result__item'); activeIndex = 0;
+  }
+  function onInputNotEmpty(val) {
+    $result.html(render(searchByQuery(val)));
+    $resultItems = $('.search-result__item'); activeIndex = 0;
+    $resultItems.eq(0).addClass('active');
+  }
+
+  search.clear = clear;
+  search.onInputNotEmpty = onInputNotEmpty;
+
+  function updateResultItems() {
+    lastActiveIndex >= 0 && $resultItems.eq(lastActiveIndex).removeClass('active');
+    activeIndex >= 0 && $resultItems.eq(activeIndex).addClass('active');
+  }
+
+  function moveActiveIndex(direction) {
+    var itemsCount = $resultItems ? $resultItems.length : 0;
+    if (itemsCount > 1) {
+      lastActiveIndex = activeIndex;
+      if (direction === 'up') {
+        activeIndex = (activeIndex - 1 + itemsCount) % itemsCount;
+      } else if (direction === 'down') {
+        activeIndex = (activeIndex + 1 + itemsCount) % itemsCount;
+      }
+      updateResultItems();
+    }
+  }
+
+  // Char Code: 13  Enter, 37  ⬅, 38  ⬆, 39  ➡, 40  ⬇
+  $(window).on('keyup', function(e) {
+    var modalVisible = search.getModalVisible && search.getModalVisible();
+    if (modalVisible) {
+      if (e.which === 38) {
+        modalVisible && moveActiveIndex('up');
+      } else if (e.which === 40) {
+        modalVisible && moveActiveIndex('down');
+      } else if (e.which === 13) {
+        modalVisible && $resultItems && activeIndex >= 0 && $resultItems.eq(activeIndex).children('a')[0].click();
+      }
+    }
+  });
+
+  $result.on('mouseover', '.search-result__item > a', function() {
+    var itemIndex = $(this).parent().data('index');
+    itemIndex >= 0 && (lastActiveIndex = activeIndex, activeIndex = itemIndex, updateResultItems());
+  });
+});
+</script>
+</div></div>
+
+
+<script>(function() {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    function scrollToAnchor(anchor, duration, callback) {
+      var $root = this;
+      $root.animate({ scrollTop: $(anchor).position().top }, duration, function() {
+        window.history.replaceState(null, '', window.location.href.split('#')[0] + anchor);
+        callback && callback();
+      });
+    }
+    $.fn.scrollToAnchor = scrollToAnchor;
+  });
+})();
+(function() {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    function affix(options) {
+      var $root = this, $window = $(window), $scrollTarget, $scroll,
+        offsetBottom = 0, scrollTarget = window, scroll = window.document, disabled = false, isOverallScroller = true,
+        rootTop, rootLeft, rootHeight, scrollBottom, rootBottomTop,
+        hasInit = false, curState;
+
+      function setOptions(options) {
+        var _options = options || {};
+        _options.offsetBottom && (offsetBottom = _options.offsetBottom);
+        _options.scrollTarget && (scrollTarget = _options.scrollTarget);
+        _options.scroll && (scroll = _options.scroll);
+        _options.disabled !== undefined && (disabled = _options.disabled);
+        $scrollTarget = $(scrollTarget);
+        isOverallScroller = window.isOverallScroller($scrollTarget[0]);
+        $scroll = $(scroll);
+      }
+      function preCalc() {
+        top();
+        rootHeight = $root.outerHeight();
+        rootTop = $root.offset().top + (isOverallScroller ? 0 :  $scrollTarget.scrollTop());
+        rootLeft = $root.offset().left;
+      }
+      function calc(needPreCalc) {
+        needPreCalc && preCalc();
+        scrollBottom = $scroll.outerHeight() - offsetBottom - rootHeight;
+        rootBottomTop = scrollBottom - rootTop;
+      }
+      function top() {
+        if (curState !== 'top') {
+          $root.removeClass('fixed').css({
+            left: 0,
+            top: 0
+          });
+          curState = 'top';
+        }
+      }
+      function fixed() {
+        if (curState !== 'fixed') {
+          $root.addClass('fixed').css({
+            left: rootLeft + 'px',
+            top: 0
+          });
+          curState = 'fixed';
+        }
+      }
+      function bottom() {
+        if (curState !== 'bottom') {
+          $root.removeClass('fixed').css({
+            left: 0,
+            top: rootBottomTop + 'px'
+          });
+          curState = 'bottom';
+        }
+      }
+      function setState() {
+        var scrollTop = $scrollTarget.scrollTop();
+        if (scrollTop >= rootTop && scrollTop <= scrollBottom) {
+          fixed();
+        } else if (scrollTop < rootTop) {
+          top();
+        } else {
+          bottom();
+        }
+      }
+      function init() {
+        if(!hasInit) {
+          var interval, timeout;
+          calc(true); setState();
+          // run calc every 100 millisecond
+          interval = setInterval(function() {
+            calc();
+          }, 100);
+          timeout = setTimeout(function() {
+            clearInterval(interval);
+          }, 45000);
+          window.pageLoad.then(function() {
+            setTimeout(function() {
+              clearInterval(interval);
+              clearTimeout(timeout);
+            }, 3000);
+          });
+          $scrollTarget.on('scroll', function() {
+            disabled || setState();
+          });
+          $window.on('resize', function() {
+            disabled || (calc(true), setState());
+          });
+          hasInit = true;
+        }
+      }
+
+      setOptions(options);
+      if (!disabled) {
+        init();
+      }
+      $window.on('resize', window.throttle(function() {
+        init();
+      }, 200));
+      return {
+        setOptions: setOptions,
+        refresh: function() {
+          calc(true, { animation: false }); setState();
+        }
+      };
+    }
+    $.fn.affix = affix;
+  });
+})();
+(function() {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    function toc(options) {
+      var $root = this, $window = $(window), $scrollTarget, $scroller, $tocUl = $('<ul class="toc toc--ellipsis"></ul>'), $tocLi, $headings, $activeLast, $activeCur,
+        selectors = 'h1,h2,h3', container = 'body', scrollTarget = window, scroller = 'html, body', disabled = false,
+        headingsPos, scrolling = false, hasRendered = false, hasInit = false;
+
+      function setOptions(options) {
+        var _options = options || {};
+        _options.selectors && (selectors = _options.selectors);
+        _options.container && (container = _options.container);
+        _options.scrollTarget && (scrollTarget = _options.scrollTarget);
+        _options.scroller && (scroller = _options.scroller);
+        _options.disabled !== undefined && (disabled = _options.disabled);
+        $headings = $(container).find(selectors).filter('[id]');
+        $scrollTarget = $(scrollTarget);
+        $scroller = $(scroller);
+      }
+      function calc() {
+        headingsPos = [];
+        $headings.each(function() {
+          headingsPos.push(Math.floor($(this).position().top));
+        });
+      }
+      function setState(element, disabled) {
+        var scrollTop = $scrollTarget.scrollTop(), i;
+        if (disabled || !headingsPos || headingsPos.length < 1) { return; }
+        if (element) {
+          $activeCur = element;
+        } else {
+          for (i = 0; i < headingsPos.length; i++) {
+            if (scrollTop >= headingsPos[i]) {
+              $activeCur = $tocLi.eq(i);
+            } else {
+              $activeCur || ($activeCur = $tocLi.eq(i));
+              break;
+            }
+          }
+        }
+        $activeLast && $activeLast.removeClass('active');
+        ($activeLast = $activeCur).addClass('active');
+      }
+      function render() {
+        if(!hasRendered) {
+          $root.append($tocUl);
+          $headings.each(function() {
+            var $this = $(this);
+            $tocUl.append($('<li></li>').addClass('toc-' + $this.prop('tagName').toLowerCase())
+              .append($('<a></a>').text($this.text()).attr('href', '#' + $this.prop('id'))));
+          });
+          $tocLi = $tocUl.children('li');
+          $tocUl.on('click', 'a', function(e) {
+            e.preventDefault();
+            var $this = $(this);
+            scrolling = true;
+            setState($this.parent());
+            $scroller.scrollToAnchor($this.attr('href'), 400, function() {
+              scrolling = false;
+            });
+          });
+        }
+        hasRendered = true;
+      }
+      function init() {
+        var interval, timeout;
+        if(!hasInit) {
+          render(); calc(); setState(null, scrolling);
+          // run calc every 100 millisecond
+          interval = setInterval(function() {
+            calc();
+          }, 100);
+          timeout = setTimeout(function() {
+            clearInterval(interval);
+          }, 45000);
+          window.pageLoad.then(function() {
+            setTimeout(function() {
+              clearInterval(interval);
+              clearTimeout(timeout);
+            }, 3000);
+          });
+          $scrollTarget.on('scroll', function() {
+            disabled || setState(null, scrolling);
+          });
+          $window.on('resize', window.throttle(function() {
+            if (!disabled) {
+              render(); calc(); setState(null, scrolling);
+            }
+          }, 100));
+        }
+        hasInit = true;
+      }
+
+      setOptions(options);
+      if (!disabled) {
+        init();
+      }
+      $window.on('resize', window.throttle(function() {
+        init();
+      }, 200));
+      return {
+        setOptions: setOptions
+      };
+    }
+    $.fn.toc = toc;
+  });
+})();
+/*(function () {
+
+})();*/
+</script><script>
+  /* toc must before affix, since affix need to konw toc' height. */(function() {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  var TOC_SELECTOR = window.TEXT_VARIABLES.site.toc.selectors;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    var $window = $(window);
+    var $articleContent = $('.js-article-content');
+    var $tocRoot = $('.js-toc-root'), $col2 = $('.js-col-aside');
+    var toc;
+    var tocDisabled = false;
+    var hasSidebar = $('.js-page-root').hasClass('layout--page--sidebar');
+    var hasToc = $articleContent.find(TOC_SELECTOR).length > 0;
+
+    function disabled() {
+      return $col2.css('display') === 'none' || !hasToc;
+    }
+
+    tocDisabled = disabled();
+
+    toc = $tocRoot.toc({
+      selectors: TOC_SELECTOR,
+      container: $articleContent,
+      scrollTarget: hasSidebar ? '.js-page-main' : null,
+      scroller: hasSidebar ? '.js-page-main' : null,
+      disabled: tocDisabled
+    });
+
+    $window.on('resize', window.throttle(function() {
+      tocDisabled = disabled();
+      toc && toc.setOptions({
+        disabled: tocDisabled
+      });
+    }, 100));
+
+  });
+})();
+(function() {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    var $window = $(window), $pageFooter = $('.js-page-footer');
+    var $pageAside = $('.js-page-aside');
+    var affix;
+    var tocDisabled = false;
+    var hasSidebar = $('.js-page-root').hasClass('layout--page--sidebar');
+
+    affix = $pageAside.affix({
+      offsetBottom: $pageFooter.outerHeight(),
+      scrollTarget: hasSidebar ? '.js-page-main' : null,
+      scroller: hasSidebar ? '.js-page-main' : null,
+      scroll: hasSidebar ? $('.js-page-main').children() : null,
+      disabled: tocDisabled
+    });
+
+    $window.on('resize', window.throttle(function() {
+      affix && affix.setOptions({
+        disabled: tocDisabled
+      });
+    }, 100));
+
+    window.pageAsideAffix = affix;
+  });
+})();
+</script><script>
+  window.Lazyload.js(['https://cdn.bootcss.com/jquery/3.1.1/jquery.min.js', 'https://cdn.bootcss.com/Chart.js/2.7.2/Chart.bundle.min.js'], function() {
+    var $canvas = null, $this = null, _ctx = null, _text = '';
+    $('.language-chart').each(function(){
+      $this = $(this);
+      $canvas = $('<canvas></canvas>');
+      _text = $this.text();
+      $this.text('').append($canvas);
+      _ctx = $canvas.get(0).getContext('2d');
+      (_ctx && _text) && (new Chart(_ctx, JSON.parse(_text)) && $this.attr('data-processed', true));
+    });
+  });
+</script>
+<script type="text/x-mathjax-config">
+	var _config = { tex2jax: {
+		inlineMath: [['$','$'], ['\\(','\\)']]
+	}};_config.TeX = { equationNumbers: { autoNumber: "all" } };MathJax.Hub.Config(_config);
+</script>
+<script type="text/javascript" src="https://cdn.bootcss.com/mathjax/2.7.4/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
+<script>
+  window.Lazyload.js('https://cdn.bootcss.com/mermaid/8.0.0-rc.8/mermaid.min.js', function() {
+    mermaid.initialize({
+      startOnLoad: true
+    });
+    mermaid.init(undefined, '.language-mermaid');
+  });
+</script>
+
+    </div>
+    <script>(function () {
+  var $root = document.getElementsByClassName('root')[0];
+  if (window.hasEvent('touchstart')) {
+    $root.dataset.isTouch = true;
+    document.addEventListener('touchstart', function(){}, false);
+  }
+})();
+</script>
+  </body>
+</html>
+

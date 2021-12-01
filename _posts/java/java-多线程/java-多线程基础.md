@@ -22,7 +22,7 @@ https://blog.csdn.net/weixin_37766296/article/details/80404503
 
 # 内存布局
 
-![image-20201117175243623](/Users/haining/Library/Application Support/typora-user-images/image-20201117175243623.png)
+![image-20201117175243623](https://tyninganother.github.io/assets/image-20201117175243623.png)
 
 对象在内存中的布局：
 

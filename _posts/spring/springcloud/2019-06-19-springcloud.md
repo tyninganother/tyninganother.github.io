@@ -19,11 +19,10 @@ categories:
 2. 中间件
 3. 传统的SSO
 4. Oauth2服务 四种授权模式
-5. <img src="springcloud.assets/image-20210406141548674.png" alt="image-20210406141548674" style="zoom:50%;" />
 
-![image-20201130114534127](/Users/haining/Library/Application Support/typora-user-images/image-20201130114534127.png)
+![image-20201130114534127](https://tyninganother.github.io/assets/image-20201130114534127.png)
 
-![image-20201201140334936](/Users/haining/Library/Application Support/typora-user-images/image-20201201140334936.png)
+![image-20201201140334936](https://tyninganother.github.io/assets/image-20201201140334936.png)
 
 
 
@@ -33,7 +32,7 @@ https://www.bilibili.com/video/BV18E411x7eT?p=18
 
 
 
-![image-20201201190523863](/Users/haining/Library/Application Support/typora-user-images/image-20201201190523863.png)
+![image-20201201190523863](https://tyninganother.github.io/assets/image-20201201190523863.png)
 
 
 
@@ -100,7 +99,7 @@ Eureka 不在更新
 
 十、 负债均衡的7种实现（IRule的7中实现）
 
-![image-20210125185409125](/Users/haining/Library/Application Support/typora-user-images/image-20210125185409125.png)
+![image-20210125185409125](https://tyninganother.github.io/assets/image-20210125185409125.png)
 
 
 
@@ -120,7 +119,7 @@ ZoneAvoidanceRule
 
 十一、Ribbon自定义规则 这里边的三个原理需要补充
 
-![image-20210208143336464](/Users/haining/Library/Application Support/typora-user-images/image-20210208143336464.png)
+![image-20210208143336464](https://tyninganother.github.io/assets/image-20210208143336464.png)
 
 
 
@@ -211,7 +210,7 @@ https://www.bilibili.com/video/BV18E411x7eT?p=54
 
 六、服务熔断
 
-![image-20210209151412136](/Users/haining/Library/Application Support/typora-user-images/image-20210209151412136.png)
+![image-20210209151412136](https://tyninganother.github.io/assets/image-20210209151412136.png)
 
 1. 先关闭服务然后返回提示
 2. 断路器 open closed half-open
@@ -260,7 +259,7 @@ Sentinel 国内推荐，阿里巴巴
 
 ## 服务网关
 
-![image-20201209170703442](/Users/haining/Library/Application Support/typora-user-images/image-20201209170703442.png)
+![image-20201209170703442](https://tyninganother.github.io/assets/image-20201209170703442.png)
 
 Zuul 不再维护
 
@@ -314,6 +313,8 @@ gateway spring自己出的
 
 
 https://www.bilibili.com/video/BV18E411x7eT?p=70&spm_id_from=pageDriver
+
+https://www.bilibili.com/video/BV1LQ4y127n4?from=search&seid=6096713136237127288&spm_id_from=333.337.0.0
 
 
 

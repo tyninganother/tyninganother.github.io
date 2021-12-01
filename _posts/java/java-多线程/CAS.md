@@ -23,7 +23,7 @@ CAS 操作包含三个操作数 —— 内存位置（V）、预期原值（A）
 
 # CAS解释
 
-![image-20201117172241035](/Users/haining/Library/Application Support/typora-user-images/image-20201117172241035.png)
+![image-20201117172241035](https://tyninganother.github.io/assets/image-20201117172241035.png)
 
 
 

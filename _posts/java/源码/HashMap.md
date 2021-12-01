@@ -54,6 +54,10 @@ https://www.bilibili.com/video/BV1vE411v7cR?p=4&spm_id_from=pageDriver
 
    下边的代码给出的方式是将老的数组中存放的元素先移动到新空间，然后在移动下一个节点。移动这个“下一个节点”的时候，是将这个节点放在新的数组中，换句话说就是在新数组的元素对应的链表是在这个链表的头部添加新元素的。
 
+   Node 节点使用的Left和Right，Value
+
+
+
    所以基于这种逻辑，首先将想要操作的老数组的元素赋值给e，然后进行移动这个e到新数组中。在赋值的过程中因为使用的是链表的头插法，所以新数组中的那个元素对应的引用空间就作为e的next属性指向的引用空间，也正是因为如此，为了能够移动了e之后，接下来要移动哪一个数据，就使用一个局部变量next记录e的next。然后就这样不同的移动直到移动完成。
 
    出现循环链表的话，就是多线程的时候，当第一个线程和第二个线程都执行了Entry<K,V> next = e.next;这个代码之后。两个线程对应的局部变量e和next对应的都是同一块内存空间。然后第二个线程处于等待cpu资源。接下来第一个线程执行完成下边的代码将所有的老数据移动到了该线程的新空间之后第二个线程执行下边的操作。为了方便表达，我们记录老的数组的这个链表为A->B->C,然后Entry<K,V> next = e.next执行之后，第一个线程的e=A(e.next=B)，next=B(B.next=C)第二个线程一样。然后按照上方描述在第一个线程执行完下边代码之后再第一个线程申请的空间的链表表示C->B->A，此时第二个线程的e和next就成了e=A(A.next=第一个线程空间的i记为T1对应的空间)，next=B(B.next=A)，然后第二个线程开始执行代码e.next = newTable[i] (第二个线程的newTable[i] 记为T2)，然后e=A(A.next=T2)，next=B(B.next=A)；然后执行newTable[i] = e;就成了T2=A(A.next=T2对应的空间)；然后执行e = next；然后e=B(B.next=A),next=B(B.next=A),T2=A(A.next=T2对应的空间);然后第二次循环，执行Entry<K,V> next = e.next;然后next=A(A.next=T2对应的空间)、e=B(B.next=A)、T2=A(A.next=T2对应的空间),执行e.next = newTable[i];然后e=B(B.next=A)、T2=A(A.next=T2对应的空间)、next=A(A.next=T2对应的空间)；然后执行newTable[i] = e;然后T2=B(B.next=A)，e=B(B.next=A)，这里就会产生B.next=A然后A.next=B。产生了循环链表的情况。
@@ -80,12 +84,12 @@ https://www.bilibili.com/video/BV1vE411v7cR?p=4&spm_id_from=pageDriver
    }
    ```
 
-8. 首先确定一下插入元素的数组的位置，
+8. 首先确定一下插入元素的数组的位置
 
    ```java
    int hash = hash(key);
    int i = indexFor(hash, table.length);
-   
+
    ```
 
    ```java
@@ -447,7 +451,7 @@ final TreeNode<K,V> putTreeVal(HashMap<K,V> map, Node<K,V>[] tab,
 
 ​		进行扩容时候，使用的rehash方式：每次扩容都是翻倍，与原来计算的(n-1)&hash的结果相比，只是多了一个bit位，所以节点要么就在原来的位置，要么就被分配到“原位置+旧容量”这个位置。如下图：
 
-![image-20210525163532652](/Users/haining/Documents/mydoc/tyninganother.github.io/assets/images/post/image-20210525163532652.png)	
+![image-20210525163532652](/Users/haining/Documents/mydoc/tyninganother.github.io/assets/images/post/image-20210525163532652.png)
 
 ```java
 /**
@@ -478,7 +482,7 @@ final Node<K,V>[] resize() {
                  oldCap >= DEFAULT_INITIAL_CAPACITY)
             newThr = oldThr << 1; // double threshold
     }
-  // 
+  //
     else if (oldThr > 0) // initial capacity was placed in threshold
         newCap = oldThr;
     else {               // zero initial threshold signifies using defaults

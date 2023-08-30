@@ -301,4 +301,6 @@ Bus 现在不用了
 
 Seata 服务  shardingsphere
 
+![image-20230830161958462](image-20230830161958462.png)
+
 https://www.infoq.cn/article/w6wkhscktpa3-qmqi4gr

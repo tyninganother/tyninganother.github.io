@@ -297,9 +297,7 @@ Bus 现在不用了
    
    5. qps(每秒访问量)
 
-2.
-
-Seata 服务  shardingsphere
+2.Seata 服务  shardingsphere
 
 ![image-20230830161958462](image-20230830161958462.png)
 
